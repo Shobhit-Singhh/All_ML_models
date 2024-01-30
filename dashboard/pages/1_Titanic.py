@@ -11,6 +11,9 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from sklearn.impute import KNNImputer
 from sklearn.preprocessing import OrdinalEncoder
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler, MaxAbsScaler, QuantileTransformer, PowerTransformer
+import statsmodels.api as sm
+from scipy import stats
 
 
 w.filterwarnings("ignore")
@@ -777,13 +780,125 @@ def feature_encoding(df):
                 if st.checkbox("Confirm the Target encoding"):
                     df = target_dummy
                     st.session_state.df = df
+def feature_scaling_transformation(df):
+    with mid:
+        st.header("Feature Scaling")
+        st.write("Feature scaling is a method used to normalize the range of independent variables or features of data. This section allows you to scale features in the dataset.")
+        st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
+        
+        extender_describe_scaling = st.expander("Describe the all scaling techniques")
+        with extender_describe_scaling:
+            st.write("Standardization: Standardization is suitable when the features have different units or scales, and it's important to center them around the mean with a unit standard deviation. Use it when the data has a normal distribution and outliers are not a concern.")
+            st.latex(r'x_{new} = \frac{x - \mu}{\sigma}')
+            st.write("MinMax Scaler: MinMax Scaler is useful when you want to scale features to a specific range. However, it may not be suitable for datasets with outliers, as it is sensitive to extreme values.")
+            st.latex(r'x_{new} = \frac{x - min(x)}{max(x) - min(x)}')
+            st.write("MaxAbs Scaler: MaxAbs Scaler is suitable when you want to scale features to the [-1, 1] range without shifting the data. Use it when preserving the sign of the data is essential, and the data has outliers.")
+            st.latex(r'x_{new} = \frac{x}{max(abs(x))}')
+            st.write("Robust Scaler: Robust Scaler is a good choice when dealing with datasets containing outliers. It scales data based on the interquartile range (IQR) and is less affected by outliers. Use it when the data has outliers or is not normally distributed.")
+            st.latex(r'x_{new} = \frac{x - Q_1(x)}{Q_3(x) - Q_1(x)}')
+            st.write("Quantile Transformer Scaler: Use this scaler when you need to transform features to follow a uniform or normal distribution. It's robust against outliers and can be beneficial when working with non-normally distributed data.")
+            st.latex(r'x_{new} = F^{-1}(x)')
+            st.write("Box-Cox Transformation: Box-Cox Transformation is a combined version of log and square transform, suitable for stabilizing variance and making the data more normally distributed. Use it when the data is positive and right-skewed. If value is zero, then replace it with very small arbitrary value to avoid error.")
+            st.latex(r'x_{new} = \begin{cases} \frac{x^{\lambda} - 1}{\lambda} & \text{if } \lambda \neq 0 \\ \ln{(x)} & \text{if } \lambda = 0 \end{cases}')
+            st.write("Yeo-Johnson Transformation: Yeo-Johnson Transformation is a modified version of Box-Cox that works with positive and negative values. It's suitable for stabilizing variance and making the data more normally distributed. Use it when the data contains both positive and negative values.")
+            st.latex(r'x_{new} = \begin{cases} ((x+1)^{\lambda} - 1)/\lambda & \text{if } \lambda \neq 0, x \geq 0 \\ \ln{(x+1)} & \text{if } \lambda = 0, x \geq 0 \\ -((-x+1)^{2-\lambda} - 1)/(2-\lambda) & \text{if } \lambda \neq 2, x < 0 \\ -\ln{(-x+1)} & \text{if } \lambda = 2, x < 0 \end{cases}')
+        
+        extender_gaussian_check = st.expander("Check the data distribution")
+        with extender_gaussian_check:
+            st.header("Gaussian Distribution Check")
+            column = st.selectbox("Select a numeric column", df.select_dtypes(include=['number']).columns)
 
-def feature_scaling(df):
-    st.header("Feature Scaling")
-    st.write("Feature scaling is a method used to normalize the range of independent variables or features of data. This section allows you to scale features in the dataset.")
-    st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
+            if column:
+                df_cleaned = df.dropna(subset=[column])
+                fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
 
+                axes[0].set_title("Distribution Plot")
+                sns.histplot(df_cleaned[column], kde=True, ax=axes[0])
+                axes[1].set_title("QQ Plot for Normality Check")
+                sm.qqplot(df_cleaned[column], line='45', fit=True, ax=axes[1])
+                plt.tight_layout()
+                st.pyplot(fig)
 
+                # Perform Shapiro-wilk test for normality
+                st.write("Shapiro-Wilk Test for Normality")
+                _, p_value = stats.shapiro(df_cleaned[column])
+                st.write(f"P-value: {p_value}")
+                if p_value < 0.05:
+                    st.warning("The data does not follow a normal distribution.")
+                else:
+                    st.success("The data follows a normal distribution.")
+            else:
+                st.warning("Please select a numeric column for analysis.")
+        st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
+        
+        technique = st.selectbox("Select the technique", ["None", "Standardization", "MinMax Scaler", "MaxAbs Scaler", "Robust Scaler", "Quantile Transformer Scaler", "Box-Cox Transformation", "Yeo-Johnson Transformation"])
+        col = st.multiselect("Select the column", df.select_dtypes(include=['number']).columns)
+        
+        if col:
+            scaled_df = df.copy()
+
+            if technique == "Standardization":
+                scaler = StandardScaler()
+            elif technique == "Normalization":
+                scaler = MinMaxScaler()
+            elif technique == "Robust Scaler":
+                scaler = RobustScaler()
+            elif technique == "MinMax Scaler":
+                scaler = MinMaxScaler()
+            elif technique == "MaxAbs Scaler":
+                scaler = MaxAbsScaler()
+            elif technique == "Quantile Transformer Scaler":
+                scaler = QuantileTransformer(output_distribution='uniform')
+            elif technique == "Box-Cox Transformation":
+                scaler = PowerTransformer(method='box-cox')
+            elif technique == "Yeo-Johnson Transformation":
+                scaler = PowerTransformer(method='yeo-johnson')
+                
+
+            if technique != "None":
+                for column in col:
+                    scaled_df[column] = scaler.fit_transform(np.array(scaled_df[column]).reshape(-1, 1))
+            else:
+                st.warning("No scaling technique selected.")
+            
+            expander_after_scaling = st.expander("Check the data distribution after scaling")
+            with expander_after_scaling:
+                st.write("Data after Feature Scaling:")
+                for column in col:
+                    st.subheader(column+" Column:")
+                # plot distribution and QQ plot
+                    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
+
+                    # Plot distribution
+                    axes[0].set_title("Distribution Plot")
+                    sns.histplot(scaled_df[column], kde=True, ax=axes[0])
+
+                    # QQ plot for normality check
+                    axes[1].set_title("QQ Plot for Normality Check")
+                    sm.qqplot(scaled_df[column], line='45', fit=True, ax=axes[1])
+
+                    # Adjust layout
+                    plt.tight_layout()
+
+                    # Display the plots
+                    st.pyplot(fig)
+                    
+                    # Perform Kolmogorov-Smirnov test for normality
+                    st.write("Shapiro-Wilk Test for Normality")
+                    _, p_value = stats.shapiro(scaled_df[column])
+                    st.write(f"P-value: {p_value}")
+                    if p_value < 0.05:
+                        st.warning("The data does not follow a normal distribution.")
+                    else:
+                        st.success("The data follows a normal distribution.")
+                        
+                
+                if st.checkbox("Confirm the Feature Scaling"):
+                    df = scaled_df
+                    st.session_state.df = df
+            
+        else:
+            st.warning("Please select at least one numeric column for feature scaling.")
 def feature_engineering(df):
     expander_4 = st.sidebar.expander("Feature Engineering")
     with expander_4:
@@ -799,8 +914,8 @@ def feature_engineering(df):
         outliers_detection(df)
     if expander_4.checkbox("Feature Encoding"):
         feature_encoding(df)
-    if expander_4.checkbox("Feature Scaling"): 
-        feature_scaling(df)
+    if expander_4.checkbox("Feature Scaling and Transformation"): 
+        feature_scaling_transformation(df)
 
 
 def feature_construction(df):
