@@ -8,13 +8,19 @@ import scipy.cluster.hierarchy as sch
 import io
 import plotly.express as px
 import plotly.graph_objects as go
+import statsmodels.api as sm
 from plotly.subplots import make_subplots
 from sklearn.impute import KNNImputer
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler, MaxAbsScaler, QuantileTransformer, PowerTransformer
-import statsmodels.api as sm
 from scipy import stats
-
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import mean_squared_error, r2_score
 
 w.filterwarnings("ignore")
 
@@ -918,37 +924,164 @@ def feature_engineering(df):
         feature_scaling_transformation(df)
 
 
-def feature_construction(df):
-    expander_5 = st.sidebar.expander("Feature Construction")
-    with expander_5:
-        st.header("Feature Construction")
-        st.write("An outlier is a data point that differs significantly from other observations. This section allows you to detect outliers in the dataset.")
-        st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
+def pca(df):
+    with mid:
+        st.header("Principal Component Analysis (PCA)")
+        st.write("Principal component analysis (PCA) is a technique used to emphasize variation and bring out strong patterns in a dataset.")
+        
+        # Select numeric columns for PCA
+        numeric_columns = df.select_dtypes(include=['number']).columns
+        selected_columns = st.multiselect("Select columns for PCA", numeric_columns)
+        
+        if selected_columns:
+            # Standardize data before applying PCA
+            scaler = StandardScaler()
+            scaled_data = scaler.fit_transform(df[selected_columns])
 
+            # Apply PCA
+            pca_model = PCA()
+            pca_result = pca_model.fit_transform(scaled_data)
 
+            # Display explained variance ratio
+            st.write("Explained Variance Ratio:")
+            st.bar_chart(pca_model.explained_variance_ratio_)
+
+            # Display scatter plot of principal components
+            st.write("Scatter Plot of Principal Components:")
+            st.scatter_chart(pd.DataFrame(pca_result, columns=['PC1', 'PC2']))
+def tsne(df):
+    with mid:
+        st.header("t-Distributed Stochastic Neighbor Embedding (t-SNE)")
+        st.write("t-distributed stochastic neighbor embedding (t-SNE) is a technique used to visualize high-dimensional data.")
+        
+        # Select numeric columns for t-SNE
+        numeric_columns = df.select_dtypes(include=['number']).columns
+        selected_columns = st.multiselect("Select columns for t-SNE", numeric_columns)
+        
+        if selected_columns:
+            # Apply t-SNE
+            tsne_model = TSNE()
+            tsne_result = tsne_model.fit_transform(df[selected_columns])
+
+            # Display scatter plot of t-SNE results
+            st.write("Scatter Plot of t-SNE:")
+            st.scatter_chart(pd.DataFrame(tsne_result, columns=['t-SNE1', 't-SNE2']))
+def umap(df):
+    with mid:
+        st.header("UMAP")
+        st.write("Uniform manifold approximation and projection (UMAP) is a technique used to visualize high-dimensional data.")
+def autoencoder(df):
+    with mid:
+        st.header("Autoencoder")
+        st.write("Autoencoder is a type of neural network used to reduce the number of features in the dataset.")
+        
+        # Select numeric columns for autoencoder
+        numeric_columns = df.select_dtypes(include=['number']).columns
+        selected_columns = st.multiselect("Select columns for Autoencoder", numeric_columns)
+        
+        if selected_columns:
+            # Apply Autoencoder
+            autoencoder_model = MLPRegressor(hidden_layer_sizes=[len(selected_columns)//2], max_iter=1000, random_state=42)
+            autoencoder_model.fit(df[selected_columns], df[selected_columns])
+
+            # Get reduced features from the hidden layer
+            reduced_features = autoencoder_model.transform(df[selected_columns])
+
+            # Display scatter plot of reduced features
+            st.write("Scatter Plot of Reduced Features (from Autoencoder):")
+            st.scatter_chart(pd.DataFrame(reduced_features, columns=['Feature1', 'Feature2']))
 def feature_selection(df):
-    expander_6 = st.sidebar.expander("Feature Selection")
-    with expander_6:
-        st.header("Feature Selection")
-        st.write("Feature selection is the process of selecting a subset of relevant features for use in model construction. This section allows you to select features from the dataset.")
-        st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
-        
-        st.checkbox("Filter Methods")
-        st.checkbox("Wrapper Methods")
-        st.checkbox("Embedded Methods")
+    expander_5 = st.sidebar.expander("Feature Selection & Dimensionality Reduction")
+    with expander_5:
+        st.header("Dimensionality Reduction")
+        st.write("Dimensionality reduction is the process of reducing the number of random variables under consideration by obtaining a set of principal variables. This section allows you to reduce the number of features in the dataset.")
+        if st.checkbox("PCA"):
+            pca(df)
+        if st.checkbox("TSNE"):
+            tsne(df)
+        if st.checkbox("UMAP"):
+            umap(df)
+        if st.checkbox("Autoencoder"):
+            autoencoder(df)
 
 
-def feature_extraction(df):
-    expander_7 = st.sidebar.expander("Feature Extraction")
+def Linear_Regression(model, X_train, X_test, y_train, y_test):
+    expander_7 = st.expander("Linear Regression")
     with expander_7:
-        st.header("Feature Extraction")
-        st.write("Feature extraction is the process of extracting features from raw data via data mining techniques. This section allows you to extract features from the dataset.")
+        st.write("Linear regression is a linear approach to modeling the relationship between a scalar response and one or more explanatory variables.")
+        st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
+
+        model = LinearRegression()
+        scoring = st.selectbox("Select the scoring method", ["r2", "neg_mean_squared_error"])
+        fit_intercept = st.selectbox("Select the fit_intercept method", [True, False])
+        cv = st.slider("Select the number of folds", 2, 10, 5)
+        param_grid = {
+            'fit_intercept': [fit_intercept]
+        }
+        
+        if st.checkbox("Tuning model"):
+            grid_search = GridSearchCV(model, param_grid, scoring=scoring, cv=cv)
+            grid_search.fit(X_train, y_train)
+            best_model = grid_search.best_estimator_
+            y_pred_train = best_model.predict(X_train)
+            y_pred_test = best_model.predict(X_test)
+
+            st.header("Model Evaluation:")
+            st.write("Training Set:")
+            st.write(f"Mean Squared Error: {mean_squared_error(y_train, y_pred_train)}")
+            st.write(f"R-squared: {r2_score(y_train, y_pred_train)}")
+
+            st.write("Test Set:")
+            st.write(f"Mean Squared Error: {mean_squared_error(y_test, y_pred_test)}")
+            st.write(f"R-squared: {r2_score(y_test, y_pred_test)}")
+
+
+def model_train(X_train, X_test, y_train, y_test):
+    with mid:
+        st.header("Model Training")
+        st.write("This section allows you to train a machine learning model to predict the target variable.")
+        model = st.selectbox("Select the model", ["None", "Linear Regression", "Logistic Regression", "Support Vector Machine" , "K Nearest Neighbour", "Decision Tree", "Random Forest", "Ada Boost", "Gradient Boost", "XGBoost", "LightGBM", "CatBoost"])
+        
+        if model == "None":
+            pass
+        
+        elif model == "Linear Regression":
+            Linear_Regression(model, X_train, X_test, y_train, y_test)
+        elif model == "Logistic Regression":
+            Logistic_Regression(model, X_train, X_test, y_train, y_test)
+        elif model == "Support Vector Machine":
+            Support_Vector_Machine(model, X_train, X_test, y_train, y_test)
+        elif model == "K Nearest Neighbour":
+            K_Nearest_Neighbour(model, X_train, X_test, y_train, y_test)
+        elif model == "Decision Tree":
+            Decision_Tree(model, X_train, X_test, y_train, y_test)
+        elif model == "Random Forest":
+            Random_Forest(model, X_train, X_test, y_train, y_test)
+        elif model == "Ada Boost":
+            Ada_Boost(model, X_train, X_test, y_train, y_test)
+        elif model == "Gradient Boost":
+            Gradient_Boost(model, X_train, X_test, y_train, y_test)
+        elif model == "XGBoost":
+            XGBoost(model, X_train, X_test, y_train, y_test)
+        elif model == "LightGBM":
+            LightGBM(model, X_train, X_test, y_train, y_test)
+        elif model == "CatBoost":
+            CatBoost(model, X_train, X_test, y_train, y_test)
+            
         st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
         
-        st.checkbox("Principal Component Analysis (PCA)")
-        st.checkbox("Linear Discriminant Analysis (LDA)")
-        st.checkbox("t-Distributed Stochastic Neighbor Embedding (t-SNE)")
-        st.checkbox("Autoencoders")
+def model_building(df):
+    extender_6 = st.sidebar.expander("Model Building")
+    with extender_6:
+        st.header("Model Building")
+        st.write("This section allows you to build a machine learning model to predict the target variable.")
+        st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
+        st.write("Select the target variable:")
+        target = st.selectbox("Select the target variable", df.columns)
+        test_size = st.slider("Select the test size", 0.0, 1.0, 0.2, step=0.01)
+        if st.checkbox("Train_Test Split"):
+            X_train, X_test, y_train, y_test = train_test_split(df.drop(target, axis=1), df[target], test_size=test_size, random_state=42)
+            model_train(X_train, X_test, y_train, y_test)
 
 
 def app():
@@ -967,14 +1100,11 @@ def app():
     # Section 4: Feature Engineering
     feature_engineering(df)
     
-    # Section 5: Feature Construction 
-    feature_construction(df)
-    
-    # Section 6: Feature Selection
+    # Section 5: Feature Selection
     feature_selection(df)
     
-    # Section 7: Feature Extraction
-    feature_extraction(df)
+    # Section 6: Model Building
+    model_building(df)
     
     # sidebar of the page
     sidebar(df)
@@ -984,5 +1114,5 @@ if __name__ == "__main__":
     mid, right_bar = st.columns([3,1])
     
     app()
-    
+
     st.set_option('deprecation.showPyplotGlobalUse', False)
