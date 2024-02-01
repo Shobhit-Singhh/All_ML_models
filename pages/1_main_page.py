@@ -743,7 +743,7 @@ def feature_encoding(df):
                 st.warning("Please select the order of unique values for ordinal encoding.")
         with tab_frequency:
             st.write("Frequency encoding is the technique of converting categorical data into their respective frequency count offering an informative numerical representation, particularly useful for high-cardinality features.")
-            target_col = st.multiselect("Select the column for Frequency Encoding", col)
+            target_col = st.multiselect("Select the column for Frequency Encoding", df.columns)
 
             if st.checkbox("Show Frequency encoding") and target_col:
                 frequency_dummy = df.copy()  # Copy the original DataFrame outside the loop
@@ -767,7 +767,7 @@ def feature_encoding(df):
                     st.session_state.df = df
         with tab_target:
             st.write("Target encoding is a technique where each category of unique value is replaced with the mean of the target variable for that category.")
-            target_col = st.multiselect("Select the column for Mean Target Encoding", col)
+            target_col = st.multiselect("Select the column for Mean Target Encoding", df.columns)
             target = st.selectbox("Select the target column", df.columns)
 
             if st.checkbox("Show Mean Target encoding") and target:
@@ -1010,7 +1010,7 @@ def feature_selection(df):
 
 
 def Linear_Regression(X_train, X_test, y_train, y_test):
-    st.write("Linear regression is a linear approach to modeling the relationship between a scalar response and one or more explanatory variables.")
+    st.write("Grid Search for Linear Regression")
     st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
     model = LinearRegression()
     scoring = st.selectbox("Select the scoring method", ["r2", "neg_mean_squared_error"])
@@ -1041,7 +1041,7 @@ def Linear_Regression(X_train, X_test, y_train, y_test):
         st.write(f"Mean Squared Error: {mean_squared_error(y_test, y_pred_test)}")
         st.write(f"R-squared: {r2_score(y_test, y_pred_test)}")
 def Logistic_Regression(X_train, X_test, y_train, y_test):
-    st.header("Grid Search")
+    st.header("Grid Search for Logistic Regression")
     st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
     
     # User-selectable parameters
@@ -1180,7 +1180,7 @@ def K_Nearest_Neighbour(X_train, X_test, y_train, y_test):
         st.write("Classification Report:")
         st.text(classification_report(y_test, y_pred_test))
 def Decision_Tree(X_train, X_test, y_train, y_test):
-    st.header("Decision Tree Classifier")
+    st.header("Grid Search for Decision Tree Classifier")
     st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
 
     # User-selectable parameters
@@ -1221,7 +1221,7 @@ def Decision_Tree(X_train, X_test, y_train, y_test):
         st.write("Classification Report:")
         st.text(classification_report(y_test, y_pred_test))
 def Random_Forest(X_train, X_test, y_train, y_test):
-    st.header("Random Forest Classifier")
+    st.header("Grid Search for Random Forest Classifier")
     st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
 
     # User-selectable parameters
@@ -1263,7 +1263,7 @@ def Random_Forest(X_train, X_test, y_train, y_test):
         st.write("Classification Report:")
         st.text(classification_report(y_test, y_pred_test))
 def Ada_Boost(X_train, X_test, y_train, y_test):
-    st.header("AdaBoost Classifier")
+    st.header("Grid Search for AdaBoost Classifier")
     st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
 
     # User-selectable parameters
@@ -1302,7 +1302,7 @@ def Ada_Boost(X_train, X_test, y_train, y_test):
         st.write("Classification Report:")
         st.text(classification_report(y_test, y_pred_test))
 def Gradient_Boost(X_train, X_test, y_train, y_test):
-    st.header("Gradient Boosting Classifier")
+    st.header("Grid Search for Gradient Boosting Classifier")
     st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
 
     # User-selectable parameters
@@ -1344,7 +1344,7 @@ def Gradient_Boost(X_train, X_test, y_train, y_test):
         st.write("Classification Report:")
         st.text(classification_report(y_test, y_pred_test))
 def XG_Boost(X_train, X_test, y_train, y_test):
-    st.header("XGBoost Classifier")
+    st.header("Grid Search for XGBoost Classifier")
     st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
 
     n_estimators_range = st.slider("Select the number of estimators", 1, 200,(50,150))
@@ -1385,7 +1385,7 @@ def XG_Boost(X_train, X_test, y_train, y_test):
         st.write("Classification Report:")
         st.text(classification_report(y_test, y_pred_test))
 def CatBoost(X_train, X_test, y_train, y_test):
-    st.header("CatBoost Classifier")
+    st.header("Grid Search for CatBoost Classifier")
     st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
 
     # User-selectable parameters
