@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import warnings as w
 import scipy.cluster.hierarchy as sch
 import io
+import os
 import plotly.express as px
 import plotly.graph_objects as go
 import statsmodels.api as sm
