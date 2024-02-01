@@ -9,19 +9,24 @@ import io
 import plotly.express as px
 import plotly.graph_objects as go
 import statsmodels.api as sm
-from plotly.subplots import make_subplots
+from plotly.subplots import make_subplots 
 from sklearn.impute import KNNImputer
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler, MaxAbsScaler, QuantileTransformer, PowerTransformer
 from scipy import stats
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
+from xgboost import XGBClassifier
+from catboost import CatBoostClassifier
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPRegressor
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.model_selection import GridSearchCV
-from sklearn.metrics import mean_squared_error, r2_score
-
+from sklearn.metrics import mean_squared_error, r2_score, accuracy_score, confusion_matrix, classification_report
 w.filterwarnings("ignore")
 
 
@@ -82,7 +87,7 @@ def uplode_and_reset():
             df = pd.read_csv(uploaded_file)
             st.session_state.df = df
         else:
-            df = pd.read_csv('/Users/shobhitsingh/Desktop/project/ML All/data/Titanic.csv')
+            df = pd.read_csv(os.path.join('data','Titanic.csv'))
             st.session_state.df = df
             
         if reset_button:
@@ -91,7 +96,7 @@ def uplode_and_reset():
             if uploaded_file:
                 df = pd.read_csv(uploaded_file)
             else:
-                df = pd.read_csv('/Users/shobhitsingh/Desktop/project/ML All/data/Titanic.csv')
+                df = pd.read_csv(os.path.join('data','Titanic.csv'))
         st.write("To make the uploaded file visible")
         st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
     return df
@@ -101,14 +106,12 @@ def sidebar(df):
         df.info(buf=buffer)
         info_str = buffer.getvalue()
         st.text(info_str)
+
         
-        save_button = st.button("Save")
-        if save_button:
-            df.to_csv("output.csv", index=False)
-            st.success("Successfully saved the dataset.") 
-        
-        # st.title("Analyzing the Your Dataset")
-        # st.write("This app aims to create an engaging and educational experience for users interested in understanding various machine learning models. Users can explore the models, learn about their characteristics, and potentially make informed decisions about which models to use in different scenarios.")
+        st.download_button(label="Download CSV file",
+                            data=df.to_csv(index=False).encode('utf-8'),
+                            file_name='output.csv',
+                            key='download_button')
 
 
 def show_dataset_shape(df):
@@ -478,7 +481,7 @@ def remove_missing_values(df):
             tab_rmv_miss1,tab_rmv_miss2=st.tabs(["Remove Colums","Remove Rows"])
             with tab_rmv_miss1:
                 col = st.multiselect("Select the column", df.columns)
-                if col:
+                if st.checkbox("Remove Columns") and col:
                     df.drop(col, axis=1, inplace=True)
                     st.session_state.df = df
                     st.success(f"{col} column(s) removed successfully.")
@@ -508,7 +511,7 @@ def missing_values_imputation(df):
         lg = st.checkbox("Show Legend")
         st.header("For Numerical Columns:")
         numerical_cols_withNA = df.select_dtypes(include=['number']).columns[df.select_dtypes(include=['number']).isnull().any()]
-        col = st.multiselect("Select the column", numerical_cols_withNA)
+        col = st.multiselect("Select the numerical column", numerical_cols_withNA)
 
         tab_num_imput1,tab_num_imput2,tab_num_imput3,tab_num_imput4,tab_num_imput5,tab_num_imput6=st.tabs(["Mean","Median","Mode","Random","End of Distribution","KNN"])
 
@@ -602,7 +605,7 @@ def missing_values_imputation(df):
         st.header("For Categorical Columns:")
         
         cat_cols_withNA = df.select_dtypes(include=['object']).columns[df.select_dtypes(include=['object']).isnull().any()]
-        col_cat = st.multiselect("Select the column", cat_cols_withNA)
+        col_cat = st.multiselect("Select the catagorical column", cat_cols_withNA)
 
         tab_cat_imput1, tab_cat_imput2 = st.tabs(["Mode", "Replace with 'Missing value' tag"])
 
@@ -1005,71 +1008,454 @@ def feature_selection(df):
             autoencoder(df)
 
 
-def Linear_Regression(model, X_train, X_test, y_train, y_test):
-    expander_7 = st.expander("Linear Regression")
-    with expander_7:
-        st.write("Linear regression is a linear approach to modeling the relationship between a scalar response and one or more explanatory variables.")
-        st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
-
-        model = LinearRegression()
-        scoring = st.selectbox("Select the scoring method", ["r2", "neg_mean_squared_error"])
-        fit_intercept = st.selectbox("Select the fit_intercept method", [True, False])
-        cv = st.slider("Select the number of folds", 2, 10, 5)
-        param_grid = {
-            'fit_intercept': [fit_intercept]
-        }
+def Linear_Regression(X_train, X_test, y_train, y_test):
+    st.write("Linear regression is a linear approach to modeling the relationship between a scalar response and one or more explanatory variables.")
+    st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
+    model = LinearRegression()
+    scoring = st.selectbox("Select the scoring method", ["r2", "neg_mean_squared_error"])
+    fit_intercept = st.multiselect("Select the fit_intercept method", [True, False])
+    
+    cv = st.slider("Select the number of folds", 2, 10, 5)
+    param_grid = {
+        'fit_intercept': fit_intercept
+    }
+    
+    if st.checkbox("Tuning model"):
         
-        if st.checkbox("Tuning model"):
-            grid_search = GridSearchCV(model, param_grid, scoring=scoring, cv=cv)
-            grid_search.fit(X_train, y_train)
-            best_model = grid_search.best_estimator_
-            y_pred_train = best_model.predict(X_train)
-            y_pred_test = best_model.predict(X_test)
+        grid_search = GridSearchCV(model, param_grid, scoring=scoring, cv=cv)
+        grid_search.fit(X_train, y_train)
+        # best parameters
+        best_params = grid_search.best_params_
+        st.write("Best Parameters:", best_params)
+        best_model = grid_search.best_estimator_
+        y_pred_train = best_model.predict(X_train)
+        y_pred_test = best_model.predict(X_test)
 
-            st.header("Model Evaluation:")
-            st.write("Training Set:")
-            st.write(f"Mean Squared Error: {mean_squared_error(y_train, y_pred_train)}")
-            st.write(f"R-squared: {r2_score(y_train, y_pred_train)}")
+        st.header("Model Evaluation:")
+        st.write("Training Set:")
+        st.write(f"Mean Squared Error: {mean_squared_error(y_train, y_pred_train)}")
+        st.write(f"R-squared: {r2_score(y_train, y_pred_train)}")
 
-            st.write("Test Set:")
-            st.write(f"Mean Squared Error: {mean_squared_error(y_test, y_pred_test)}")
-            st.write(f"R-squared: {r2_score(y_test, y_pred_test)}")
+        st.write("Test Set:")
+        st.write(f"Mean Squared Error: {mean_squared_error(y_test, y_pred_test)}")
+        st.write(f"R-squared: {r2_score(y_test, y_pred_test)}")
+def Logistic_Regression(X_train, X_test, y_train, y_test):
+    st.header("Grid Search")
+    st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
+    
+    # User-selectable parameters
+    penalty = st.multiselect("Select the regularization penalty", ['l1', 'l2', 'elasticnet', 'none'], ["l2"])
+    C_range = st.slider("Select the range of regularization strength (C)", 0.01, 10.0, (4.0,5.0), step=0.01)
+    fit_intercept = st.multiselect("Select the fit_intercept method", [True, False], [True])
+    solver = st.multiselect("Select the optimization solver", ["liblinear", "lbfgs", "saga"], ["saga"])
+    l1_ratio_range = st.slider("Select the range of L1 ratio", 0.0, 1.0, (0.4, 0.5), step=0.1)
+    multi_class = st.selectbox("Select the multi-class strategy", ["auto", "ovr", "multinomial"])
+    intercept_scaling_range = st.slider("Select the intercept scaling factor", 0.1, 10.0,(4.0, 5.0), step=0.01)
+    
+    cv = st.slider("Select the number of folds for cross-validation", 1, 11, 3)
+    
+    param_grid = {
+        'penalty': penalty,
+        'C': list(np.arange(C_range[0], C_range[1] + 0.1, 0.2)),
+        'fit_intercept': fit_intercept,
+        'solver': solver,
+        'l1_ratio': list(np.arange(l1_ratio_range[0], l1_ratio_range[1]+0.1, 0.1)),
+        'multi_class': [multi_class],
+        'intercept_scaling': list(np.arange(intercept_scaling_range[0], intercept_scaling_range[1] + 0.1, 0.2))
+    }
+    
+    if st.checkbox("Tuning model"):
+        model = LogisticRegression()
+        grid_search = GridSearchCV(model, param_grid, scoring='accuracy', cv=cv)
+        grid_search.fit(X_train, y_train)
+        
+        # best parameters
+        best_params = grid_search.best_params_
+        st.write("Best Parameters:", best_params)
+        best_model = grid_search.best_estimator_
+        y_pred_train = best_model.predict(X_train)
+        y_pred_test = best_model.predict(X_test)
 
+        st.header("Model Evaluation:")
+        st.write("Training Set:")
+        st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train)}")
+        st.write("Confusion Matrix:")
+        st.write(confusion_matrix(y_train, y_pred_train))
+        st.write("Classification Report:")
+        st.text(classification_report(y_train, y_pred_train))
 
+        st.write("Test Set:")
+        st.write(f"Accuracy: {accuracy_score(y_test, y_pred_test)}")
+        st.write("Confusion Matrix:")
+        st.write(confusion_matrix(y_test, y_pred_test))
+        st.write("Classification Report:")
+        st.text(classification_report(y_test, y_pred_test))
+def Support_Vector_Machine(X_train, X_test, y_train, y_test):
+    st.header("Grid Search for SVM")
+    st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
+
+    # User-selectable parameters
+    C_range = st.slider("Select the range of regularization strength (C)", 0.01, 10.0, (4.0, 5.0), step=0.01)
+    kernel = st.multiselect("Select the kernel", ["linear", "poly", "rbf", "sigmoid"], ["rbf"])
+    gamma_range = st.slider("Select the range of gamma", 0.01, 1.0, (0.1, 0.5), step=0.01)
+    
+    cv = st.slider("Select the number of folds for cross-validation", 1, 11, 3)
+
+    param_grid = {
+        'kernel': kernel,
+        'C': list(np.arange(C_range[0], C_range[1] + 0.1, 0.2)),
+        'gamma': list(np.arange(gamma_range[0], gamma_range[1] + 0.01, 0.01))
+    }
+
+    if st.checkbox("Tuning model"):
+        model = SVC()
+        grid_search = GridSearchCV(model, param_grid, scoring='accuracy', cv=cv)
+        grid_search.fit(X_train, y_train)
+
+        # best parameters
+        best_params = grid_search.best_params_
+        st.write("Best Parameters:", best_params)
+        best_model = grid_search.best_estimator_
+        y_pred_train = best_model.predict(X_train)
+        y_pred_test = best_model.predict(X_test)
+
+        st.header("Model Evaluation:")
+        st.write("Training Set:")
+        st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train)}")
+        st.write("Confusion Matrix:")
+        st.write(confusion_matrix(y_train, y_pred_train))
+        st.write("Classification Report:")
+        st.text(classification_report(y_train, y_pred_train))
+
+        st.write("Test Set:")
+        st.write(f"Accuracy: {accuracy_score(y_test, y_pred_test)}")
+        st.write("Confusion Matrix:")
+        st.write(confusion_matrix(y_test, y_pred_test))
+        st.write("Classification Report:")
+        st.text(classification_report(y_test, y_pred_test))
+def K_Nearest_Neighbour(X_train, X_test, y_train, y_test):
+    st.header("Grid Search for KNN")
+    st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
+
+    # User-selectable parameters
+    n_neighbors = st.slider("Select the number of neighbors", 1, 20, 5)
+    weights = st.multiselect("Select the weight function", ["uniform", "distance"], ["uniform"])
+    algorithm = st.multiselect("Select the algorithm", ["auto", "ball_tree", "kd_tree", "brute"], ["auto"])
+    p_value_range = st.slider("Select the power parameter for Minkowski distance", 1, 10,(4,5), 2)
+    
+    cv = st.slider("Select the number of folds for cross-validation", 1, 11, 3)
+
+    param_grid = {
+        'n_neighbors': [n_neighbors],
+        'weights': weights,
+        'algorithm': algorithm,
+        'p': list(np.arange(p_value_range[0], p_value_range[1] + 0.1, 0.2))
+    }
+
+    if st.checkbox("Tuning model"):
+        model = KNeighborsClassifier()
+        grid_search = GridSearchCV(model, param_grid, scoring='accuracy', cv=cv)
+        grid_search.fit(X_train, y_train)
+
+        # best parameters
+        best_params = grid_search.best_params_
+        st.write("Best Parameters:", best_params)
+        best_model = grid_search.best_estimator_
+        y_pred_train = best_model.predict(X_train)
+        y_pred_test = best_model.predict(X_test)
+
+        st.header("Model Evaluation:")
+        st.write("Training Set:")
+        st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train)}")
+        st.write("Confusion Matrix:")
+        st.write(confusion_matrix(y_train, y_pred_train))
+        st.write("Classification Report:")
+        st.text(classification_report(y_train, y_pred_train))
+
+        st.write("Test Set:")
+        st.write(f"Accuracy: {accuracy_score(y_test, y_pred_test)}")
+        st.write("Confusion Matrix:")
+        st.write(confusion_matrix(y_test, y_pred_test))
+        st.write("Classification Report:")
+        st.text(classification_report(y_test, y_pred_test))
+def Decision_Tree(X_train, X_test, y_train, y_test):
+    st.header("Decision Tree Classifier")
+    st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
+
+    # User-selectable parameters
+    criterion = st.multiselect("Select the criterion", ["gini", "entropy"], ["gini"])
+    splitter = st.multiselect("Select the splitter", ["best", "random"], ["best"])
+    max_depth_range = st.slider("Select the maximum depth", 1, 30, (5,15))
+    cv = st.slider("Select the number of folds for cross-validation", 1, 11, 3)
+    param_grid = {
+        'criterion': criterion,
+        'splitter': splitter,
+        'max_depth': list(np.arange(max_depth_range[0], max_depth_range[1] + 1, 1))
+    }
+
+    if st.checkbox("Tuning model"):
+        model = DecisionTreeClassifier()
+        grid_search = GridSearchCV(model, param_grid, scoring='accuracy', cv=cv)
+        grid_search.fit(X_train, y_train)
+
+        # best parameters
+        best_params = grid_search.best_params_
+        st.write("Best Parameters:", best_params)
+        best_model = grid_search.best_estimator_
+        y_pred_train = best_model.predict(X_train)
+        y_pred_test = best_model.predict(X_test)
+
+        st.header("Model Evaluation:")
+        st.write("Training Set:")
+        st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train)}")
+        st.write("Confusion Matrix:")
+        st.write(confusion_matrix(y_train, y_pred_train))
+        st.write("Classification Report:")
+        st.text(classification_report(y_train, y_pred_train))
+
+        st.write("Test Set:")
+        st.write(f"Accuracy: {accuracy_score(y_test, y_pred_test)}")
+        st.write("Confusion Matrix:")
+        st.write(confusion_matrix(y_test, y_pred_test))
+        st.write("Classification Report:")
+        st.text(classification_report(y_test, y_pred_test))
+def Random_Forest(X_train, X_test, y_train, y_test):
+    st.header("Random Forest Classifier")
+    st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
+
+    # User-selectable parameters
+    n_estimators_range = st.slider("Select the number of trees", 1, 200, (100,150),step=10)
+    criterion = st.multiselect("Select the criterion", ["gini", "entropy"], ["gini"])
+    max_depth_range = st.slider("Select the maximum depth", 1, 20,(2,8))
+    
+    cv = st.slider("Select the number of folds for cross-validation", 1, 11, 3)
+    param_grid = {
+        'n_estimators': list(np.arange(n_estimators_range[0], n_estimators_range[1] + 1, 1)),
+        'criterion': criterion,
+        'max_depth': list(np.arange(max_depth_range[0], max_depth_range[1] + 1, 1))
+    }
+
+    if st.checkbox("Tuning model"):
+        model = RandomForestClassifier()
+        grid_search = GridSearchCV(model, param_grid, scoring='accuracy', cv=cv)
+        grid_search.fit(X_train, y_train)
+
+        # best parameters
+        best_params = grid_search.best_params_
+        st.write("Best Parameters:", best_params)
+        best_model = grid_search.best_estimator_
+        y_pred_train = best_model.predict(X_train)
+        y_pred_test = best_model.predict(X_test)
+
+        st.header("Model Evaluation:")
+        st.write("Training Set:")
+        st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train)}")
+        st.write("Confusion Matrix:")
+        st.write(confusion_matrix(y_train, y_pred_train))
+        st.write("Classification Report:")
+        st.text(classification_report(y_train, y_pred_train))
+
+        st.write("Test Set:")
+        st.write(f"Accuracy: {accuracy_score(y_test, y_pred_test)}")
+        st.write("Confusion Matrix:")
+        st.write(confusion_matrix(y_test, y_pred_test))
+        st.write("Classification Report:")
+        st.text(classification_report(y_test, y_pred_test))
+def Ada_Boost(X_train, X_test, y_train, y_test):
+    st.header("AdaBoost Classifier")
+    st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
+
+    # User-selectable parameters
+    n_estimators = st.slider("Select the number of estimators", 1, 200, 50)
+    learning_rate = st.slider("Select the learning rate", 0.01, 1.0,(0.4, 0.5), step=0.1)
+    cv = st.slider("Select the number of folds for cross-validation", 1, 11, 3)
+
+    param_grid = {
+        'n_estimators': [n_estimators],
+        'learning_rate': list(np.arange(learning_rate[0], learning_rate[1] + 1, 1))
+    }
+
+    if st.checkbox("Tuning model"):
+        model = AdaBoostClassifier()
+        grid_search = GridSearchCV(model, param_grid, scoring='accuracy', cv=cv)
+        grid_search.fit(X_train, y_train)
+
+        best_params = grid_search.best_params_
+        st.write("Best Parameters:", best_params)
+        best_model = grid_search.best_estimator_
+        y_pred_train = best_model.predict(X_train)
+        y_pred_test = best_model.predict(X_test)
+
+        st.header("Model Evaluation:")
+        st.write("Training Set:")
+        st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train)}")
+        st.write("Confusion Matrix:")
+        st.write(confusion_matrix(y_train, y_pred_train))
+        st.write("Classification Report:")
+        st.text(classification_report(y_train, y_pred_train))
+
+        st.write("Test Set:")
+        st.write(f"Accuracy: {accuracy_score(y_test, y_pred_test)}")
+        st.write("Confusion Matrix:")
+        st.write(confusion_matrix(y_test, y_pred_test))
+        st.write("Classification Report:")
+        st.text(classification_report(y_test, y_pred_test))
+def Gradient_Boost(X_train, X_test, y_train, y_test):
+    st.header("Gradient Boosting Classifier")
+    st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
+
+    # User-selectable parameters
+    n_estimators_range = st.slider("Select the number of estimators", 1, 200,(50,150))
+    learning_rate_range = st.slider("Select the learning rate", 0.01, 1.0,(0.4,0.5), 0.1)
+    max_depth_range = st.slider("Select the maximum depth", 1, 30,(5,15))
+    cv = st.slider("Select the number of folds for cross-validation", 1, 11, 3)
+
+    param_grid = {
+        'n_estimators': list(np.arange(n_estimators_range[0], n_estimators_range[1] + 1, 1)),
+        'learning_rate': list(np.arange(learning_rate_range[0], learning_rate_range[1] + 1, 1)),
+        'max_depth': list(np.arange(max_depth_range[0], max_depth_range[1] + 1, 1))
+    }
+
+    if st.checkbox("Tuning model"):
+        model = GradientBoostingClassifier()
+        grid_search = GridSearchCV(model, param_grid, scoring='accuracy', cv=cv)
+        grid_search.fit(X_train, y_train)
+
+        # best parameters
+        best_params = grid_search.best_params_
+        st.write("Best Parameters:", best_params)
+        best_model = grid_search.best_estimator_
+        y_pred_train = best_model.predict(X_train)
+        y_pred_test = best_model.predict(X_test)
+
+        st.header("Model Evaluation:")
+        st.write("Training Set:")
+        st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train)}")
+        st.write("Confusion Matrix:")
+        st.write(confusion_matrix(y_train, y_pred_train))
+        st.write("Classification Report:")
+        st.text(classification_report(y_train, y_pred_train))
+
+        st.write("Test Set:")
+        st.write(f"Accuracy: {accuracy_score(y_test, y_pred_test)}")
+        st.write("Confusion Matrix:")
+        st.write(confusion_matrix(y_test, y_pred_test))
+        st.write("Classification Report:")
+        st.text(classification_report(y_test, y_pred_test))
+def XG_Boost(X_train, X_test, y_train, y_test):
+    st.header("XGBoost Classifier")
+    st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
+
+    n_estimators_range = st.slider("Select the number of estimators", 1, 200,(50,150))
+    learning_rate_range = st.slider("Select the learning rate", 0.01, 1.0,(0.4,0.5), 0.1)
+    max_depth_range = st.slider("Select the maximum depth", 1, 30,(5,15))
+    cv = st.slider("Select the number of folds for cross-validation", 1, 11, 3)
+
+    param_grid = {
+        'n_estimators': list(np.arange(n_estimators_range[0], n_estimators_range[1] + 1, 1)),
+        'learning_rate': list(np.arange(learning_rate_range[0], learning_rate_range[1] + 1, 1)),
+        'max_depth': list(np.arange(max_depth_range[0], max_depth_range[1] + 1, 1))
+    }
+
+    if st.checkbox("Tuning model"):
+        model = XGBClassifier()
+        grid_search = GridSearchCV(model, param_grid, scoring='accuracy', cv=cv)
+        grid_search.fit(X_train, y_train)
+
+        # best parameters
+        best_params = grid_search.best_params_
+        st.write("Best Parameters:", best_params)
+        best_model = grid_search.best_estimator_
+        y_pred_train = best_model.predict(X_train)
+        y_pred_test = best_model.predict(X_test)
+
+        st.header("Model Evaluation:")
+        st.write("Training Set:")
+        st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train)}")
+        st.write("Confusion Matrix:")
+        st.write(confusion_matrix(y_train, y_pred_train))
+        st.write("Classification Report:")
+        st.text(classification_report(y_train, y_pred_train))
+
+        st.write("Test Set:")
+        st.write(f"Accuracy: {accuracy_score(y_test, y_pred_test)}")
+        st.write("Confusion Matrix:")
+        st.write(confusion_matrix(y_test, y_pred_test))
+        st.write("Classification Report:")
+        st.text(classification_report(y_test, y_pred_test))
+def CatBoost(X_train, X_test, y_train, y_test):
+    st.header("CatBoost Classifier")
+    st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
+
+    # User-selectable parameters
+    iterations_range = st.slider("Select the number of iterations", 1, 100, (40,50))
+    learning_rate_range = st.slider("Select the learning rate", 0.01, 1.0,(0.4,0.5), 0.1)
+    max_depth_range = st.slider("Select the maximum depth", 1, 30,(5,15))
+    cv = st.slider("Select the number of folds for cross-validation", 1, 11, 3)
+
+    param_grid = {
+        'iterations': list(np.arange(iterations_range[0], iterations_range[1] + 1, 1)),
+        'learning_rate': list(np.arange(learning_rate_range[0], learning_rate_range[1] + 1, 1)),
+        'max_depth': list(np.arange(max_depth_range[0], max_depth_range[1] + 1, 1))
+    }
+    
+    if st.checkbox("Tuning model"):
+        model = CatBoostClassifier()
+        grid_search = GridSearchCV(model, param_grid, scoring='accuracy', cv=cv)
+        grid_search.fit(X_train, y_train)
+
+        # best parameters
+        best_params = grid_search.best_params_
+        st.write("Best Parameters:", best_params)
+        best_model = grid_search.best_estimator_
+        y_pred_train = best_model.predict(X_train)
+        y_pred_test = best_model.predict(X_test)
+
+        st.header("Model Evaluation:")
+        st.write("Training Set:")
+        st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train)}")
+        st.write("Confusion Matrix:")
+        st.write(confusion_matrix(y_train, y_pred_train))
+        st.write("Classification Report:")
+        st.text(classification_report(y_train, y_pred_train))
+
+        st.write("Test Set:")
+        st.write(f"Accuracy: {accuracy_score(y_test, y_pred_test)}")
+        st.write("Confusion Matrix:")
+        st.write(confusion_matrix(y_test, y_pred_test))
+        st.write("Classification Report:")
+        st.text(classification_report(y_test, y_pred_test))
 def model_train(X_train, X_test, y_train, y_test):
     with mid:
         st.header("Model Training")
         st.write("This section allows you to train a machine learning model to predict the target variable.")
-        model = st.selectbox("Select the model", ["None", "Linear Regression", "Logistic Regression", "Support Vector Machine" , "K Nearest Neighbour", "Decision Tree", "Random Forest", "Ada Boost", "Gradient Boost", "XGBoost", "LightGBM", "CatBoost"])
+        model = st.selectbox("Select the model", ["None", "Linear Regression", "Logistic Regression", "Support Vector Machine" , "K Nearest Neighbour", "Decision Tree", "Random Forest", "Ada Boost", "Gradient Boost", "XGBoost", "CatBoost"])
         
         if model == "None":
             pass
         
         elif model == "Linear Regression":
-            Linear_Regression(model, X_train, X_test, y_train, y_test)
+            Linear_Regression(X_train, X_test, y_train, y_test)
         elif model == "Logistic Regression":
-            Logistic_Regression(model, X_train, X_test, y_train, y_test)
+            Logistic_Regression(X_train, X_test, y_train, y_test)
         elif model == "Support Vector Machine":
-            Support_Vector_Machine(model, X_train, X_test, y_train, y_test)
+            Support_Vector_Machine(X_train, X_test, y_train, y_test)
         elif model == "K Nearest Neighbour":
-            K_Nearest_Neighbour(model, X_train, X_test, y_train, y_test)
+            K_Nearest_Neighbour(X_train, X_test, y_train, y_test)
         elif model == "Decision Tree":
-            Decision_Tree(model, X_train, X_test, y_train, y_test)
+            Decision_Tree(X_train, X_test, y_train, y_test)
         elif model == "Random Forest":
-            Random_Forest(model, X_train, X_test, y_train, y_test)
+            Random_Forest(X_train, X_test, y_train, y_test)
         elif model == "Ada Boost":
-            Ada_Boost(model, X_train, X_test, y_train, y_test)
+            Ada_Boost(X_train, X_test, y_train, y_test)
         elif model == "Gradient Boost":
-            Gradient_Boost(model, X_train, X_test, y_train, y_test)
+            Gradient_Boost(X_train, X_test, y_train, y_test)
         elif model == "XGBoost":
-            XGBoost(model, X_train, X_test, y_train, y_test)
-        elif model == "LightGBM":
-            LightGBM(model, X_train, X_test, y_train, y_test)
+            XG_Boost(X_train, X_test, y_train, y_test)
         elif model == "CatBoost":
-            CatBoost(model, X_train, X_test, y_train, y_test)
+            CatBoost(X_train, X_test, y_train, y_test)
             
         st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
-        
 def model_building(df):
     extender_6 = st.sidebar.expander("Model Building")
     with extender_6:
@@ -1112,7 +1498,5 @@ def app():
 
 if __name__ == "__main__":
     mid, right_bar = st.columns([3,1])
-    
     app()
-
     st.set_option('deprecation.showPyplotGlobalUse', False)

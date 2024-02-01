@@ -1,11 +1,11 @@
 import streamlit as st
+import os
 
 def app():
     st.title('Explore ML Models')
     st.write('This app aims to create an engaging and educational experience for users interested in understanding various machine learning models. Users can explore the models, learn about their characteristics, and potentially make informed decisions about which models to use in different scenarios.')
     st.write('Discover and interact with various machine learning models. Choose a model to explore and visualize its performance on different datasets.')
-    st.write('Here is the breaf description of all the models that are available in this app.')
-    
+    st.write('Here is the brief description of all the models that are available in this app.')
 
     # List of ML models with descriptions
     ml_models_info = {
@@ -17,22 +17,22 @@ def app():
         'Random Forest': 'An ensemble learning method that operates by constructing a multitude of decision trees at training time and outputs the class that is the mode of the classes (classification) or mean prediction (regression) of the individual trees.',
         'AdaBoost': 'An ensemble learning method that combines weak classifiers to form a strong classifier.',
         'Gradient Boosting': 'An ensemble learning technique for regression, classification, and ranking problems, producing a prediction model in the form of an ensemble of weak prediction models.',
-        'Naive Bayes': 'A family of probabilistic algorithms based on applying Bayes’ theorem with strong independence assumptions between features.',
         'Principal Component Analysis (PCA)': 'A technique for reducing the dimensionality of data while retaining as much of the variation in the data as possible.'
     }
 
     # Add local paths or URLs to images for each model
+    base_dir = 'images'
+
     model_images = {
-        'Linear Regression': 'images/linear.png',
-        'Logistic Regression': 'images/logistic.png',
-        'K-Nearest Neighbors': 'images/knn.png',
-        'Support Vector Machines': 'images/svm.png',
-        'Decision Trees': 'images/dcision.png',
-        'Random Forest': 'images/forest.png',
-        'AdaBoost': 'images/ada.png',
-        'Gradient Boosting': 'images/gradient.png',
-        'Naive Bayes': 'images/naive.png',
-        'Principal Component Analysis (PCA)': 'images/pca.jpg'
+        'Linear Regression': os.path.join(base_dir, 'linear.png'),
+        'Logistic Regression': os.path.join(base_dir, 'logistic.png'),
+        'K-Nearest Neighbors': os.path.join(base_dir, 'knn.png'),
+        'Support Vector Machines': os.path.join(base_dir, 'svm.png'),
+        'Decision Trees': os.path.join(base_dir, 'dcision.png'),
+        'Random Forest': os.path.join(base_dir, 'forest.png'),
+        'AdaBoost': os.path.join(base_dir, 'ada.png'),
+        'Gradient Boosting': os.path.join(base_dir, 'gradient.png'),
+        'Principal Component Analysis (PCA)': os.path.join(base_dir, 'pca.jpg')
     }
 
     # Display model descriptions and images in a 3x3 grid
