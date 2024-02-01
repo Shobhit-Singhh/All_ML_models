@@ -8,6 +8,6 @@ scikit-learn
 scipy
 statsmodels
 umap-learn 
-xgboost
-lightgbm
-catboost
+# xgboost
+# lightgbm
+# catboost
