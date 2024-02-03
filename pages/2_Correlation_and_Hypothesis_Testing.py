@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import matplotlib.pyplot as plt
-import os
+
 from sklearn.metrics import confusion_matrix
 from scipy.stats import chi2_contingency, fisher_exact
 from scipy.stats import ttest_ind, ks_2samp, mannwhitneyu, wilcoxon
@@ -310,7 +310,7 @@ def app():
     if uploaded_file is not None:
         df = pd.read_csv(uploaded_file)  
     else:
-        df = pd.read_csv(os.path.join('data','lifestyle.csv'))
+        df = pd.read_csv('data/lifestyle.csv')
         st.sidebar.markdown("Default DataFrame is loaded:""Sleep Health and Lifestyle [Dataset](https://www.kaggle.com/datasets/uom190346a/sleep-health-and-lifestyle-dataset)")
 
     side_bar(df)
