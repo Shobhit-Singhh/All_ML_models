@@ -1511,5 +1511,6 @@ def app():
 
 if __name__ == "__main__":
     mid, right_bar = st.columns([3,1])
+    st.set_page_config(layout="wide")
     app()
     st.set_option('deprecation.showPyplotGlobalUse', False)
