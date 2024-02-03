@@ -360,6 +360,8 @@ def app():
 
 
 if __name__ == "__main__":
+    st.set_page_config(layout="wide",initial_sidebar_state="auto")
+    
     st.title("Correlation and Hypothesis Testing")
     mid,_ = st.columns([100,1])
     app()

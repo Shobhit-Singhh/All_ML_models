@@ -2,7 +2,7 @@ from pathlib import Path
 import streamlit as st
 from PIL import Image
 import os
-
+st.set_page_config(layout="wide",initial_sidebar_state="auto")
 # --- GENERAL SETTINGS ---
 PAGE_TITLE = "Your Digital CV"
 PAGE_ICON = ":wave:"
