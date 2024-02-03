@@ -220,7 +220,7 @@ def rename_columns(df):
 def convert_data_types(df):
     mid.header("Convert data types")
     selected_column = mid.selectbox("Select a column for conversion:", df.columns)
-    new_dtype = mid.selectbox("Select new data type:", ["object", "int64", "float64"])
+    new_dtype = mid.selectbox("Select new data type:", ["object", "int64", "float64","bool"])
     convert_button = mid.button("Convert Data Type")
     if convert_button:
         try:
