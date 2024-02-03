@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import matplotlib.pyplot as plt
-import yaml
 import os
 from sklearn.metrics import confusion_matrix
 from scipy.stats import chi2_contingency, fisher_exact
