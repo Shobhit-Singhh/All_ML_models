@@ -438,8 +438,10 @@ def plot_data(df):
     with tab2:
         extender_3 = st.expander("Plot your data")
         with extender_3:
-            if st.checkbox("plot your data"):
-                plot_with_pygwalker(df)
+            plot = st.checkbox("plot your data")
+            
+    if plot:
+        plot_with_pygwalker(df)
             
     # extender_3.header("Plot your data")
     # graph = extender_3.selectbox("Select Graph", ("None","Scatter Plot", "Bar Plot", "Box Plot", "Histogram", "Heatmap", "Count Plot", "Pie Plot", "Distplot", "Line Plot"))
