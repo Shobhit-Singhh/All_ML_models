@@ -1,8 +1,6 @@
 import streamlit as st
 import os
 def app():
-    st.write('This is the `All ML models` page of the multi-page app.')
-def app():
     st.title('Explore ML Models')
     st.write('This app aims to create an engaging and educational experience for users interested in understanding various machine learning models. Users can explore the models, learn about their characteristics, and potentially make informed decisions about which models to use in different scenarios.')
     st.write('Discover and interact with various machine learning models. Choose a model to explore and visualize its performance on different datasets.')
@@ -48,10 +46,6 @@ def app():
             col.write(ml_models_info[model])
 
 if __name__ == "__main__":
-    st.set_page_config(
-        page_title="Explore ML Models",
-        page_icon="🧊",
-        layout="wide",
-        initial_sidebar_state="auto"
-        )
+    st.set_page_config(layout="wide",initial_sidebar_state="auto")
+
     app()
