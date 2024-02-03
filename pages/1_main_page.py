@@ -274,9 +274,9 @@ def clean_data(df):
 
 
 def plot_with_pygwalker(df):
-    pyg_html = pyg.to_html(df)
-    components.html(pyg_html, height=1000, scrolling=True)
-
+    with mid:
+        pyg_html = pyg.to_html(df)
+        components.html(pyg_html, height=900, scrolling=True)
 def split_dataset(df):
     unique_value = mid.slider("Enter the number of unique values for threshold", 1, 20, 5)
     continous_columns = []
@@ -448,9 +448,10 @@ def Line_plot(df,continous_columns, categorical_columns, discrete_columns, show_
 def plot_data(df):
     extender_3 = st.sidebar.expander("Plot your data")
     # use pygwalker to plot the data
-    extender_3.header("Plot your data")
-    if st.checkbox("plot your data"):
-        plot_with_pygwalker(df)
+    with extender_3:
+        if st.checkbox("plot your data"):
+            plot_with_pygwalker(df)
+            
     # extender_3.header("Plot your data")
     # graph = extender_3.selectbox("Select Graph", ("None","Scatter Plot", "Bar Plot", "Box Plot", "Histogram", "Heatmap", "Count Plot", "Pie Plot", "Distplot", "Line Plot"))
     # split_data = extender_3.checkbox("Split data into continous and categorical columns")
@@ -479,7 +480,7 @@ def plot_data(df):
     #     Distplot(df,continous_columns, categorical_columns, discrete_columns, show_legend)
     # elif graph == "Line Plot":
     #     Line_plot(df,continous_columns, categorical_columns, discrete_columns, show_legend)
-    
+
 
 
 def remove_missing_values(df):
