@@ -51,7 +51,6 @@ def kolmogorov_smirnov_test(group1, group2):
         st.success("The difference in distributions is statistically significant.So, we reject the null hypothesis.")
     else:
         st.success("The difference in distributions is not statistically significant.So, we fail to reject the null hypothesis.")
-
 def mann_whitney_u_test(group1, group2):
     # Perform Mann-Whitney U test for two independent samples
     u_statistic, p_value = mannwhitneyu(group1, group2)
@@ -76,7 +75,6 @@ def mann_whitney_u_test(group1, group2):
         st.success("The difference in distributions is statistically significant.So, we reject the null hypothesis.")
     else:
         st.success("The difference in distributions is not statistically significant.So, we fail to reject the null hypothesis.")
-
 def wilcoxon_signed_rank_test(data):
     # Perform Wilcoxon signed-rank test for paired samples
     _, p_value = wilcoxon(data)
@@ -93,7 +91,6 @@ def wilcoxon_signed_rank_test(data):
         st.success("The difference in distributions is statistically significant.So, we reject the null hypothesis.")
     else:
         st.success("The difference in distributions is not statistically significant.So, we fail to reject the null hypothesis.")
-
 def chi_square_test(confusion_matrix):
     chi2, p, dof, ex = chi2_contingency(confusion_matrix)
 
@@ -122,7 +119,6 @@ def chi_square_test(confusion_matrix):
 
     st.subheader("Contingency Table")
     st.table(ex)
-
 def fisher_exact_test(confusion_matrix):
     odds_ratio, p_value = fisher_exact(confusion_matrix)
     
@@ -241,8 +237,7 @@ def qualitative_analysis(df):
                 fisher_exact_test(confusion_matrix)
             elif hypothesis_testing == 'Odd Ratio':
                 odds_ratio(confusion_matrix)
-            
-            
+
 
         with Quantitative1:  
             st.subheader("Qualitative vs Quantitative")
@@ -281,21 +276,69 @@ def qualitative_analysis(df):
 
 def quantitative_analysis(df):
     with mid:
-        st.subheader("Vital Based Analysis")
-        filter = load_yaml_file(os.path.join('filters.yaml'))
-        primary_vital = st.selectbox("Select Vital of Subject", filter['column']['vitals'])
-        dis_vs_symp, dis_vs_dis, dis_vs_vital = st.tabs(["Vital vs Symptoms", "Vital vs Diseases", "Vital vs Vitals"])
+        Quantitative2 = st.subheader("Quantitative Analysis")
         
-        with dis_vs_symp:
-            symp = st.selectbox("Select Symptom", filter['column']['symptoms'])
+        num_col = df.select_dtypes(include=['number']).columns
+        non_bool_num_col = [col for col in num_col if df[col].dtype != 'bool']
+        
+        target_quant = st.selectbox("Select Target Variable", non_bool_num_col)
+        show_df_quantitative = pd.DataFrame(df[target_quant])
 
-        with dis_vs_dis:
-            dis = st.selectbox("Select Disease", filter['column']['diseases'])
+        fig_quantitative = px.histogram(show_df_quantitative, x=target_quant)
+        st.plotly_chart(fig_quantitative)
+
+        count_quantitative = df.shape[0]
+        mean_quantitative = show_df_quantitative[target_quant].mean()
+        std_quantitative = show_df_quantitative[target_quant].std()
+        Q1 = show_df_quantitative[target_quant].quantile(0.25)
+        Q2 = show_df_quantitative[target_quant].quantile(0.50)
+        Q3 = show_df_quantitative[target_quant].quantile(0.75)
+        IQR = Q3 - Q1
+
+        summary_data_quantitative = {
+            'Count': [count_quantitative],
+            'Mean': ["%.2f" %mean_quantitative],
+            'Standard Deviation': ["%.2f" %std_quantitative],
+            'Q1': ["%.2f" %Q1],
+            'Q2': ["%.2f" %Q2],
+            'Q3': ["%.f" %Q3],
+            'IQR': ["%.2f" %IQR]
+        }
+
+        summary_df_quantitative = pd.DataFrame(summary_data_quantitative)
+        st.subheader("Summary Statistics for the Quantitative Variable:")
+        st.table(summary_df_quantitative)
+        Qualitative2,Quantitative2 = st.tabs(["Analise with Qualitative feature", "Analise with Quantitative feature"])
+        
+        
+        with Quantitative2:
+            st.subheader("Quantitative vs Qualitative")
+            bool_feature = st.selectbox("Select the quantitative feature for analysis", non_bool_num_col)
             
-        with dis_vs_vital:
-            secondary_vital = st.selectbox("Select another Vital", filter['column']['vitals'])
-
-
+            # Plot Box Plot
+            st.subheader("Box Plot")
+            fig_box_quant_qual = px.box(df, x=bool_feature, y=target_quant, labels={'y': target_quant, 'color': bool_feature}, title=f"Box Plot of {target_quant} by {bool_feature}")
+            st.plotly_chart(fig_box_quant_qual)
+            
+            hypothesis_testing_quant_qual = st.selectbox("Select Hypothesis Testing", ['T-Test', "Kolmogorov-Smirnov Test", "Mann-Whitney U Test", "Wilcoxon Signed-Rank Test"])
+            
+            if hypothesis_testing_quant_qual == 'T-Test':
+                group1_quant_qual = df[df[bool_feature] == True][target_quant]
+                group2_quant_qual = df[df[bool_feature] == False][target_quant]
+                t_test(group1_quant_qual, group2_quant_qual)
+            elif hypothesis_testing_quant_qual == "Kolmogorov-Smirnov Test":
+                group1_quant_qual = df[df[bool_feature] == True][target_quant]
+                group2_quant_qual = df[df[bool_feature] == False][target_quant]
+                kolmogorov_smirnov_test(group1_quant_qual, group2_quant_qual)
+            elif hypothesis_testing_quant_qual == "Mann-Whitney U Test":
+                group1_quant_qual = df[df[bool_feature] == True][target_quant]
+                group2_quant_qual = df[df[bool_feature] == False][target_quant]
+                mann_whitney_u_test(group1_quant_qual, group2_quant_qual)
+            elif hypothesis_testing_quant_qual == "Wilcoxon Signed-Rank Test":
+                data_quant_qual = df[target_quant]
+                wilcoxon_signed_rank_test(data_quant_qual)
+        
+        
 def side_bar(df):
     with st.sidebar:
         if st.checkbox("Qualitative Analysis"):

@@ -48,4 +48,10 @@ def app():
             col.write(ml_models_info[model])
 
 if __name__ == "__main__":
+    st.set_page_config(
+        page_title="Explore ML Models",
+        page_icon="🧊",
+        layout="wide",
+        initial_sidebar_state="auto"
+        )
     app()
