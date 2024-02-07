@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import matplotlib.pyplot as plt
+import plotly.figure_factory as ff
 
 from sklearn.metrics import confusion_matrix
 from scipy.stats import chi2_contingency, fisher_exact
@@ -96,7 +97,8 @@ def chi_square_test(confusion_matrix):
 
     # Display the Chi-Square Test information
     st.subheader("Chi-Square Test")
-    st.markdown("The chi-square test of independence is used to determine if there is a significant association between two categorical variables. The test compares the observed distribution of the variables to an expected distribution if the variables were independent.")
+    
+
     summary_data = {
         "Chi-Square": f"{chi2:.2f}",
         "P-Value": f"{p:.2e}",
@@ -142,7 +144,6 @@ def fisher_exact_test(confusion_matrix):
         st.success("The difference in distributions is statistically significant.So, we reject the null hypothesis.")
     else:
         st.success("The difference in distributions is not statistically significant.So, we fail to reject the null hypothesis.")
-
 def odds_ratio(confusion_matrix):
     _, p_value, _, _ = chi2_contingency(confusion_matrix)
     
@@ -190,6 +191,11 @@ def qualitative_analysis(df):
         fig = px.histogram(show_df,x=target_bool)
         st.plotly_chart(fig)
 
+        # st.subheader("Mosaic Plot")
+        # mosaic_fig = px.histogram(show_df, x=bool_col, color=target_bool, marginal="mosaic",
+        #                             title=f"Mosaic Plot ({target_bool} vs {bool_col})")
+        # st.plotly_chart(mosaic_fig)
+        
         # summerize of the data
         count = df.shape[0]
         proportion_of_ones = show_df[target_bool].mean()
@@ -211,25 +217,27 @@ def qualitative_analysis(df):
             st.subheader("Qualitative vs Qualitative")
             bool_feature = st.selectbox("Select the feature for analysis", bool_col)
             
-            # Plot Histogram
             st.subheader("Distribution")
-            fig = px.histogram(df, x=bool_feature, color=target_bool, 
-                            labels={'color': target_bool},
-                            title=f"Distribution of {bool_feature} by {target_bool}")
+            fig = px.histogram(df, x=bool_feature, color=target_bool,labels={'color': target_bool},title=f"Distribution of {bool_feature} by {target_bool}")
             st.plotly_chart(fig)
             
-            st.subheader("Confusion Matrix")
+            st.subheader("")
             
+            
+            
+            
+            
+            
+            st.subheader("Cotigency Table")
             confusion_matrix = pd.crosstab(df[target_bool], df[bool_feature])
             
-            # Replace 'True' and 'False' with column names
             confusion_matrix.index = [f'{target_bool}-{idx}' for idx in confusion_matrix.index]
             confusion_matrix.columns = [f'{bool_feature}-{col}' for col in confusion_matrix.columns]
             
             styled_matrix = confusion_matrix.style.highlight_max(axis=0, color='lightgreen').highlight_max(axis=1, color='lightblue').set_table_styles([{'selector': 'thead th','props': [('text-align', 'center')]}])
             st.table(styled_matrix.set_caption(f"Confusion Matrix ({target_bool} vs {bool_feature})").set_table_attributes("class='styled-table'"))
             
-            hypothesis_testing = st.selectbox("Select Hypothesis Testing", ['Chi-Square Test', "Fisher's Exact Test","Odd Ratio"])
+            hypothesis_testing = st.selectbox("Select Hypothesis Testing", ['None', "Chi-Square Test", "Fisher's Exact Test", "Odd Ratio"])
             
             if hypothesis_testing == 'Chi-Square Test':
                 chi_square_test(confusion_matrix)

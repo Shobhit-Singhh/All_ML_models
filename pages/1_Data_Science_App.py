@@ -28,7 +28,7 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_squared_error, r2_score, accuracy_score, confusion_matrix, classification_report
-import pygwalker as pyg
+# import pygwalker as pyg
 import streamlit.components.v1 as components
 w.filterwarnings("ignore")
 
@@ -156,30 +156,25 @@ def know_data(df):
         expander_1.header("Know your data")
         expander_1.write("The first step in any data science project is to understand the data. This section provides a brief overview of the dataset and its features.")
         expander_1.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
-        
         show_shape = expander_1.checkbox("Show dataset shape")
-        if show_shape:
-            show_dataset_shape(df)
-
         show_sample = expander_1.checkbox("Show sample of the dataset")
-        if show_sample:
-            show_sample_dataset(df)
-
         show_describe = expander_1.checkbox("Show dataset description")
-        if show_describe:
-            show_dataset_description(df)
-
         show_null = expander_1.checkbox("Show null values")
-        if show_null:
-            show_null_values(df)
-
         show_duplicate = expander_1.checkbox("Show duplicate values")
-        if show_duplicate:
-            show_duplicate_values(df)
-
         show_corr = expander_1.checkbox("Show correlation metric")
-        if show_corr:
-            show_correlation_metric(df)
+        
+    if show_shape:
+        show_dataset_shape(df)
+    if show_sample:
+        show_sample_dataset(df)
+    if show_describe:
+        show_dataset_description(df)
+    if show_null:
+        show_null_values(df)
+    if show_duplicate:
+        show_duplicate_values(df)
+    if show_corr:
+        show_correlation_metric(df)
 
 
 def remove_duplicate_rows(df):
@@ -636,46 +631,47 @@ def outliers_detection(df):
     st.write("An outlier is a data point that differs significantly from other observations. This section allows you to detect outliers in the dataset.")
     st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
     col = st.multiselect("Select the column ", df.select_dtypes(include=['number']).columns)
-    tab_Zscore, tab_IQR, tab_percentile = st.tabs(["Z score", "IQR", "Percentile"])
+    if col:
+        tab_Zscore, tab_IQR, tab_percentile = st.tabs(["Z score", "IQR", "Percentile"])
+        
+        with tab_Zscore:
+            st.write("Z score")
+            threshold = st.slider("Select the threshold Z score", 0.0, 3.0, 1.5, step=0.01)
+            z_score_dummy = df.copy()
+            for c in col:
+                z_scores = (z_score_dummy[c] - z_score_dummy[c].mean()) / z_score_dummy[c].std()
+                z_score_dummy[c] = np.where(np.abs(z_scores) > threshold, np.nan, z_score_dummy[c])
+            compare_distribution(df, z_score_dummy, col)
+            if st.checkbox("Confirm the Z-score outliers detection"):
+                df = z_score_dummy
+                st.session_state.df = df
     
-    with tab_Zscore:
-        st.write("Z score")
-        threshold = st.slider("Select the threshold Z score", 0.0, 3.0, 1.5, step=0.01)
-        z_score_dummy = df.copy()
-        for c in col:
-            z_scores = (z_score_dummy[c] - z_score_dummy[c].mean()) / z_score_dummy[c].std()
-            z_score_dummy[c] = np.where(np.abs(z_scores) > threshold, np.nan, z_score_dummy[c])
-        compare_distribution(df, z_score_dummy, col)
-        if st.checkbox("Confirm the Z-score outliers detection"):
-            df = z_score_dummy
-            st.session_state.df = df
-    
-    with tab_IQR:
-        st.write("IQR")
-        threshold = st.slider("Select the threshold for IQR multiplication", 0.0, 3.0, 1.5, step=0.01)
-        IQR_dummy = df.copy()
-        IQR=IQR_dummy[c].quantile(0.75) - IQR_dummy[c].quantile(0.25)
-        for c in col:
-            lower_limit = IQR_dummy[c].quantile(0.25) - threshold * IQR
-            upper_limit = IQR_dummy[c].quantile(0.75) + threshold * IQR
-            IQR_dummy[c] = np.where((IQR_dummy[c] < lower_limit) | (IQR_dummy[c] > upper_limit), np.nan, IQR_dummy[c])
-        compare_distribution(df, IQR_dummy,col)
-        if st.checkbox("Confirm the IQR outliers detection"):
-            df = IQR_dummy
-            st.session_state.df = df
+        with tab_IQR:
+            st.write("IQR")
+            threshold = st.slider("Select the threshold for IQR multiplication", 0.0, 3.0, 1.5, step=0.01)
+            IQR_dummy = df.copy()
+            IQR=IQR_dummy[c].quantile(0.75) - IQR_dummy[c].quantile(0.25)
+            for c in col:
+                lower_limit = IQR_dummy[c].quantile(0.25) - threshold * IQR
+                upper_limit = IQR_dummy[c].quantile(0.75) + threshold * IQR
+                IQR_dummy[c] = np.where((IQR_dummy[c] < lower_limit) | (IQR_dummy[c] > upper_limit), np.nan, IQR_dummy[c])
+            compare_distribution(df, IQR_dummy,col)
+            if st.checkbox("Confirm the IQR outliers detection"):
+                df = IQR_dummy
+                st.session_state.df = df
 
-    with tab_percentile:
-        st.write("Percentile")
-        lower_percentile, upper_percentile = st.slider("Select the range of percentile", 0, 100, (0, 5))
-        percentile_dummy = df.copy()
-        for c in df.select_dtypes(include=['number']).columns:
-            lower_limit = percentile_dummy[c].quantile(lower_percentile / 100)
-            upper_limit = percentile_dummy[c].quantile(upper_percentile / 100)
-            percentile_dummy[c] = np.where((percentile_dummy[c] < lower_limit) | (percentile_dummy[c] > upper_limit), np.nan, percentile_dummy[c])
-        compare_distribution(df, percentile_dummy,col)
-        if st.checkbox("Confirm the percentile outliers detection"):
-            df = percentile_dummy
-            st.session_state.df = df
+        with tab_percentile:
+            st.write("Percentile")
+            lower_percentile, upper_percentile = st.slider("Select the range of percentile", 0, 100, (0, 5))
+            percentile_dummy = df.copy()
+            for c in df.select_dtypes(include=['number']).columns:
+                lower_limit = percentile_dummy[c].quantile(lower_percentile / 100)
+                upper_limit = percentile_dummy[c].quantile(upper_percentile / 100)
+                percentile_dummy[c] = np.where((percentile_dummy[c] < lower_limit) | (percentile_dummy[c] > upper_limit), np.nan, percentile_dummy[c])
+            compare_distribution(df, percentile_dummy,col)
+            if st.checkbox("Confirm the percentile outliers detection"):
+                df = percentile_dummy
+                st.session_state.df = df
 
     st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
 def feature_encoding(df):
