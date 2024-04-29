@@ -179,7 +179,7 @@ def odds_ratio(confusion_matrix):
 
 def qualitative_analysis(df):
     with mid:
-        st.subheader("Qualitative Analysis")
+        st.subheader("Categorical Analysis")
         
         bool_col = df.select_dtypes(include='bool').columns
         num_col = df.select_dtypes(include=['number']).columns
@@ -211,10 +211,10 @@ def qualitative_analysis(df):
         st.subheader("Summary of the Distribution of the Feature of Interest:")
         st.table(summary_df)
 
-        Qualitative1, Quantitative1 = st.tabs(["Analise with Qualitative feature", "Analise with Qualitative feature"])
+        Qualitative1, Quantitative1 = st.tabs(["Analise with Categorical feature", "Analise with Continuous feature"])
         
         with Qualitative1:
-            st.subheader("Qualitative vs Qualitative")
+            st.subheader("Categorical vs Continuous")
             bool_feature = st.selectbox("Select the feature for analysis", bool_col)
             
             st.subheader("Distribution")
@@ -248,7 +248,7 @@ def qualitative_analysis(df):
 
 
         with Quantitative1:  
-            st.subheader("Qualitative vs Quantitative")
+            st.subheader("Categorical vs Continuous")
             num_feature = st.selectbox("Select the feature for analysis", non_bool_num_col)
             
             # Plot Density Plot
@@ -284,7 +284,7 @@ def qualitative_analysis(df):
 
 def quantitative_analysis(df):
     with mid:
-        Quantitative2 = st.subheader("Quantitative Analysis")
+        Quantitative2 = st.subheader("Continuous Analysis")
         
         num_col = df.select_dtypes(include=['number']).columns
         non_bool_num_col = [col for col in num_col if df[col].dtype != 'bool']
@@ -314,14 +314,14 @@ def quantitative_analysis(df):
         }
 
         summary_df_quantitative = pd.DataFrame(summary_data_quantitative)
-        st.subheader("Summary Statistics for the Quantitative Variable:")
+        st.subheader("Summary Statistics for the Continuous Variable:")
         st.table(summary_df_quantitative)
-        Qualitative2,Quantitative2 = st.tabs(["Analise with Qualitative feature", "Analise with Quantitative feature"])
+        Qualitative2,Quantitative2 = st.tabs(["Analise with Categorical feature", "Analise with Continuous feature"])
         
         
         with Quantitative2:
-            st.subheader("Quantitative vs Qualitative")
-            bool_feature = st.selectbox("Select the quantitative feature for analysis", non_bool_num_col)
+            st.subheader("Continuous vs Categorical")
+            bool_feature = st.selectbox("Select the Continuous feature for analysis", non_bool_num_col)
             
             # Plot Box Plot
             st.subheader("Box Plot")
@@ -349,9 +349,9 @@ def quantitative_analysis(df):
         
 def side_bar(df):
     with st.sidebar:
-        if st.checkbox("Qualitative Analysis"):
+        if st.checkbox("Categorical Analysis"):
             qualitative_analysis(df)
-        if st.checkbox("Quantitative Analysis"):
+        if st.checkbox("Continuous Analysis"):
             quantitative_analysis(df)
 
 
