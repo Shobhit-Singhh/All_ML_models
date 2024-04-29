@@ -345,6 +345,8 @@ def quantitative_analysis(df):
             elif hypothesis_testing_quant_qual == "Wilcoxon Signed-Rank Test":
                 data_quant_qual = df[target_quant]
                 wilcoxon_signed_rank_test(data_quant_qual)
+            # elif hypothesis_testing == 'Chi-Square Test':
+            #     chi_square_test(confusion_matrix)
         
         
 def side_bar(df):
