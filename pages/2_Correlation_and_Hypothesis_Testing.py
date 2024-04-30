@@ -218,59 +218,95 @@ def wilcoxon_signed_rank_test(data):
 
 
 def chi_square_test(confusion_matrix):
-    chi2, p, dof, ex = chi2_contingency(confusion_matrix)
+    # Perform Chi-Square Test
+    chi2, p_value, dof, ex = chi2_contingency(confusion_matrix)
 
-    # Display the Chi-Square Test information
+    # Display Chi-Square Test information
     st.subheader("Chi-Square Test")
-    
 
+    # Hypothesis Summary
+    st.markdown("### Hypothesis Summary")
+    st.markdown("#### Research Question")
+    st.write("Is there a significant association between two categorical variables?")
+    
+    st.markdown("#### Null Hypothesis (H0)")
+    st.write("There is no significant association between the two categorical variables.")
+    
+    st.markdown("#### Alternative Hypothesis (H1)")
+    st.write("There is a significant association between the two categorical variables.")
+    
+    st.markdown("#### Variables")
+    st.write("Variable 1: Categorical Variable 1")
+    st.write("Variable 2: Categorical Variable 2")
+
+    # Summary data
     summary_data = {
-        "Chi-Square": f"{chi2:.2f}",
-        "P-Value": f"{p:.2e}",
-        "Degrees of Freedom": f"{dof}"
+        "Chi-Square Statistic": f"{chi2:.2e}",
+        "P-Value": f"{p_value:.2e}",
+        "Degrees of Freedom": dof
     }
-    if chi2 < 0:
-        st.success("The distribution of group 1 is less than the distribution of group 2.")
-    else:
-        st.success("The distribution of group 1 is greater than the distribution of group 2.")
-        
     st.table(summary_data)
-    if p < 0.05:
-        st.success("The difference in distributions is statistically significant.So, we reject the null hypothesis.")
+
+    # Interpretation
+    if p_value < 0.05:
+        st.success("The difference in distributions is statistically significant. Therefore, we reject the null hypothesis.")
     else:
-        st.success("The difference in distributions is not statistically significant.So, we fail to reject the null hypothesis.")
-
-    # Display Expected Frequencies
-    st.subheader("Expected Frequencies")
-    st.markdown("Expected frequencies are the values that would be expected in each cell of the contingency table if there were no association between the variables. These values are based on the assumption of independence.")
-
-    st.subheader("Contingency Table")
-    st.table(ex)
+        st.success("The difference in distributions is not statistically significant. Therefore, we fail to reject the null hypothesis.")
     
+    # Additional Metrics
+    st.subheader("Additional Metrics")
+    additional_metrics_data = {
+        "Confusion Matrix": confusion_matrix.values.flatten(),
+        "Expected Frequencies": ex.flatten()
+    }
+    st.table(additional_metrics_data)
+
+
 def fisher_exact_test(confusion_matrix):
+    # Perform Fisher's Exact Test
     odds_ratio, p_value = fisher_exact(confusion_matrix)
     
     # Display Fisher's Exact Test information
     st.subheader("Fisher's Exact Test")
     st.markdown("Fisher's exact test is used when the sample size is small. It tests the independence between two categorical variables.")
     
+    # Hypothesis Summary
+    st.markdown("### Hypothesis Summary")
+    st.markdown("#### Research Question")
+    st.write("Is there a significant association between two categorical variables?")
+    
+    st.markdown("#### Null Hypothesis (H0)")
+    st.write("There is no significant association between the two categorical variables.")
+    
+    st.markdown("#### Alternative Hypothesis (H1)")
+    st.write("There is a significant association between the two categorical variables.")
+    
+    st.markdown("#### Variables")
+    st.write("Variable 1: Categorical Variable 1")
+    st.write("Variable 2: Categorical Variable 2")
+
+    # Summary data
     summary_data = {
-        "Odds Ratio": f"{odds_ratio:.2f}",
+        "Odds Ratio": f"{odds_ratio:.2e}",
         "P-Value": f"{p_value:.2e}"
     }
-    
-    if odds_ratio < 0:
-        st.success("The distribution of group 1 is less than the distribution of group 2.")
-    else:
-        st.success("The distribution of group 1 is greater than the distribution of group 2.")
-    
     st.table(summary_data)
-    
+
+    # Interpretation
     if p_value < 0.05:
-        st.success("The difference in distributions is statistically significant.So, we reject the null hypothesis.")
+        st.success("The difference in distributions is statistically significant. Therefore, we reject the null hypothesis.")
     else:
-        st.success("The difference in distributions is not statistically significant.So, we fail to reject the null hypothesis.")
+        st.success("The difference in distributions is not statistically significant. Therefore, we fail to reject the null hypothesis.")
+    
+    # Additional Metrics
+    st.subheader("Additional Metrics")
+    additional_metrics_data = {
+        "Confusion Matrix": confusion_matrix.values.flatten(),
+    }
+    st.table(additional_metrics_data)
+
 def odds_ratio(confusion_matrix):
+    # Compute chi-square test for odds ratio
     _, p_value, _, _ = chi2_contingency(confusion_matrix)
     
     # Display Odds Ratio information
@@ -280,28 +316,32 @@ def odds_ratio(confusion_matrix):
     # Assuming the columns in confusion_matrix represent the groups
     a, b = confusion_matrix.iloc[0]
     c, d = confusion_matrix.iloc[1]
+    
+    # Calculate odds ratio if possible
     if a == 0 or b == 0 or c == 0 or d == 0:
         st.write("The odds ratio cannot be calculated because one of the cells in the contingency table is 0.")
-        
     else:
         odds_ratio = (a * d) / (b * c)
     
+        # Summary data
         summary_data = {
-            "Odds Ratio": f"{odds_ratio:.2f}",
+            "Odds Ratio": f"{odds_ratio:.2e}",
             "P-Value": f"{p_value:.2e}"
         }
-        if odds_ratio < 0:
-            st.success("The distribution of group 1 is less than the distribution of group 2.")
-        else:
-            st.success("The distribution of group 1 is greater than the distribution of group 2.") 
-        
         st.table(summary_data)
         
+        # Interpretation
         if p_value < 0.05:
-            st.success("The difference in distributions is statistically significant.So, we reject the null hypothesis.")
+            st.success("The difference in distributions is statistically significant. Therefore, we reject the null hypothesis.")
         else:
-            st.success("The difference in distributions is not statistically significant.So, we fail to reject the null hypothesis.")
-
+            st.success("The difference in distributions is not statistically significant. Therefore, we fail to reject the null hypothesis.")
+        
+        # Additional Metrics
+        st.subheader("Additional Metrics")
+        additional_metrics_data = {
+            "Confusion Matrix": confusion_matrix.values.flatten(),
+        }
+        st.table(additional_metrics_data)
 
 def qualitative_analysis(df):
     with mid:
