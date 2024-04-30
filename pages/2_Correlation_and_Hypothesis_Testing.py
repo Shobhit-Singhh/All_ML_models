@@ -208,7 +208,7 @@ def wilcoxon_signed_rank_test(data):
     
     st.table(summary_data)
     
-     st.subheader("Additional Metrics")
+    st.subheader("Additional Metrics")
     additional_metrics_data = {
         "Metric": ["Mean", "Median", "Standard Deviation"],
         "Group 1": [f"{group1.mean():.2e}", f"{group1.median():.2e}", f"{group1.std():.2e}"],
