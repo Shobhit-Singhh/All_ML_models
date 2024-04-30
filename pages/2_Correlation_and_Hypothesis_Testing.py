@@ -111,6 +111,61 @@ def kolmogorov_smirnov_test(group1, group2):
     }
     st.table(additional_metrics_data)
 
+def mann_whitney_u_test(group1, group2):
+    # Hypothesis summary
+    st.subheader("Hypothesis Summary")
+    st.markdown("### Research Question")
+    st.write("Is there a significant difference between the distributions of two groups based on a continuous variable?")
+    
+    st.markdown("### Null Hypothesis (H0)")
+    st.write("There is no significant difference between the distributions of the two groups based on the continuous variable.")
+    
+    st.markdown("### Alternative Hypothesis (H1)")
+    st.write("There is a significant difference between the distributions of the two groups based on the continuous variable.")
+    
+    st.markdown("### Variables")
+    st.write("Group 1: Continuous Variable")
+    st.write("Group 2: Continuous Variable")
+    
+    st.markdown("### Expected Relationship")
+    st.write("There is no specific expectation on the direction of the relationship. We are testing for any significant difference in the distributions.")
+    
+    st.markdown("### Significance Level")
+    st.write("Typically set at 0.05.")
+    
+    # Perform Mann-Whitney U test for two independent samples
+    u_statistic, p_value = mannwhitneyu(group1, group2)
+    
+    # Display Mann-Whitney U test information
+    st.subheader("Mann-Whitney U Test")
+    st.markdown("The Mann-Whitney U test is a non-parametric test used to determine if there is a significant difference between the distributions of two independent samples.")
+    
+    summary_data = {
+        "U Statistic": f"{u_statistic:.2f}",
+        "P-Value": f"{p_value:.2e}"
+    }
+    
+    if u_statistic < 0:
+        st.success("The distribution of group 1 is less than the distribution of group 2.")
+    else:
+        st.success("The distribution of group 1 is greater than the distribution of group 2.")
+        
+    st.table(summary_data)
+    
+    if p_value < 0.05:
+        st.success("The difference in distributions is statistically significant. Therefore, we reject the null hypothesis.")
+    else:
+        st.success("The difference in distributions is not statistically significant. Therefore, we fail to reject the null hypothesis.")
+    
+    # Additional metrics
+    st.subheader("Additional Metrics")
+    additional_metrics_data = {
+        "Metric": ["Mean", "Median", "Standard Deviation"],
+        "Group 1": [group1.mean(), group1.median(), group1.std()],
+        "Group 2": [group2.mean(), group2.median(), group2.std()]
+    }
+    st.table(additional_metrics_data)
+
 def wilcoxon_signed_rank_test(data):
     # Hypothesis summary
     st.subheader("Hypothesis Summary")
@@ -157,64 +212,6 @@ def wilcoxon_signed_rank_test(data):
     st.write("Median:", data.median())
     st.write("Standard Deviation:", data.std())
 
-import streamlit as st
-from scipy.stats import mannwhitneyu
-
-def mann_whitney_u_test(group1, group2):
-    # Hypothesis summary
-    st.subheader("Hypothesis Summary")
-    st.markdown("### Research Question")
-    st.write("Is there a significant difference between the distributions of two groups based on a continuous variable?")
-    
-    st.markdown("### Null Hypothesis (H0)")
-    st.write("There is no significant difference between the distributions of the two groups based on the continuous variable.")
-    
-    st.markdown("### Alternative Hypothesis (H1)")
-    st.write("There is a significant difference between the distributions of the two groups based on the continuous variable.")
-    
-    st.markdown("### Variables")
-    st.write("Group 1: Binary/Categorical Variable")
-    st.write("Group 2: Continuous Variable")
-    
-    st.markdown("### Expected Relationship")
-    st.write("There is no specific expectation on the direction of the relationship. We are testing for any significant difference in the distributions.")
-    
-    st.markdown("### Significance Level")
-    st.write("Typically set at 0.05.")
-    
-    # Perform Mann-Whitney U test for two independent samples
-    u_statistic, p_value = mannwhitneyu(group1, group2)
-    
-    # Display Mann-Whitney U test information
-    st.subheader("Mann-Whitney U Test")
-    st.markdown("The Mann-Whitney U test is a non-parametric test used to determine if there is a significant difference between the distributions of two independent samples.")
-    
-    summary_data = {
-        "U Statistic": f"{u_statistic:.2f}",
-        "P-Value": f"{p_value:.2e}"
-    }
-    
-    if u_statistic < 0:
-        st.success("The distribution of group 1 is less than the distribution of group 2.")
-    else:
-        st.success("The distribution of group 1 is greater than the distribution of group 2.")
-        
-    st.table(summary_data)
-    
-    if p_value < 0.05:
-        st.success("The difference in distributions is statistically significant. Therefore, we reject the null hypothesis.")
-    else:
-        st.success("The difference in distributions is not statistically significant. Therefore, we fail to reject the null hypothesis.")
-    
-    # Additional metrics
-    st.subheader("Additional Metrics")
-    additional_metrics_data = {
-        "Metric": ["Mean", "Median", "Standard Deviation"],
-        "Group 1": [group1.mean(), group1.median(), group1.std()],
-        "Group 2": [group2.mean(), group2.median(), group2.std()]
-    }
-    st.table(additional_metrics_data)
-
 
 def chi_square_test(confusion_matrix):
     chi2, p, dof, ex = chi2_contingency(confusion_matrix)
@@ -245,6 +242,7 @@ def chi_square_test(confusion_matrix):
 
     st.subheader("Contingency Table")
     st.table(ex)
+    
 def fisher_exact_test(confusion_matrix):
     odds_ratio, p_value = fisher_exact(confusion_matrix)
     
@@ -466,9 +464,9 @@ def quantitative_analysis(df):
                 group1_quant_qual = df[df[bool_feature] == True][target_quant]
                 group2_quant_qual = df[df[bool_feature] == False][target_quant]
                 mann_whitney_u_test(group1_quant_qual, group2_quant_qual)
-            elif hypothesis_testing_quant_qual == "Wilcoxon Signed-Rank Test":
-                data_quant_qual = df[target_quant]
-                wilcoxon_signed_rank_test(data_quant_qual)
+            # elif hypothesis_testing_quant_qual == "Wilcoxon Signed-Rank Test":
+            #     data_quant_qual = df[target_quant]
+            #     wilcoxon_signed_rank_test(data_quant_qual)
             # elif hypothesis_testing == 'Chi-Square Test':
             #     chi_square_test(confusion_matrix)
         
