@@ -387,7 +387,7 @@ def qualitative_analysis(df):
             fig_box = px.box(df, x=target_bool, y=num_feature, labels={'y': num_feature, 'color': target_bool}, title=f"Box Plot of {num_feature} by {target_bool}")
             st.plotly_chart(fig_box)
             
-            hypothesis_testing = st.selectbox("Select Hypothesis Testing", ['T-Test', "Kolmogorov-Smirnov Test", "Mann-Whitney U Test", "Wilcoxon Signed-Rank Test"])
+            hypothesis_testing = st.selectbox("Select Hypothesis Testing", ['T-Test', "Kolmogorov-Smirnov Test", "Mann-Whitney U Test"])
             
             if hypothesis_testing == 'T-Test':
                 group1 = df[df[target_bool] == True][num_feature]
