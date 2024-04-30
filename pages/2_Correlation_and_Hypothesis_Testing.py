@@ -252,14 +252,7 @@ def chi_square_test(confusion_matrix):
         st.success("The difference in distributions is statistically significant. Therefore, we reject the null hypothesis.")
     else:
         st.success("The difference in distributions is not statistically significant. Therefore, we fail to reject the null hypothesis.")
-    
-    # Additional Metrics
-    # st.subheader("Additional Metrics")
-    # additional_metrics_data = {
-    #     "Confusion Matrix": confusion_matrix.values.flatten(),
-    #     "Expected Frequencies": ex.flatten()
-    # }
-    # st.table(additional_metrics_data)
+
 
 
 def fisher_exact_test(confusion_matrix):
@@ -297,13 +290,7 @@ def fisher_exact_test(confusion_matrix):
         st.success("The difference in distributions is statistically significant. Therefore, we reject the null hypothesis.")
     else:
         st.success("The difference in distributions is not statistically significant. Therefore, we fail to reject the null hypothesis.")
-    
-    # Additional Metrics
-    # st.subheader("Additional Metrics")
-    # additional_metrics_data = {
-    #     "Confusion Matrix": confusion_matrix.values.flatten(),
-    # }
-    # st.table(additional_metrics_data)
+
 
 def odds_ratio(confusion_matrix):
     # Compute chi-square test for odds ratio
@@ -335,13 +322,7 @@ def odds_ratio(confusion_matrix):
             st.success("The difference in distributions is statistically significant. Therefore, we reject the null hypothesis.")
         else:
             st.success("The difference in distributions is not statistically significant. Therefore, we fail to reject the null hypothesis.")
-        
-        # Additional Metrics
-        # st.subheader("Additional Metrics")
-        # additional_metrics_data = {
-        #     "Confusion Matrix": confusion_matrix.values.flatten(),
-        # }
-        # st.table(additional_metrics_data)
+
 
 def qualitative_analysis(df):
     with mid:
