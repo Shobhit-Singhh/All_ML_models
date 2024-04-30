@@ -15,20 +15,21 @@ def t_test(group1, group2):
     # Hypothesis summary
     st.subheader("Hypothesis Summary")
     st.markdown("### Research Question")
-    st.write("Is there a significant difference between the means of two groups based on a continuous variable?")
+    st.write("Is there a significant difference between the distributions of a continuous variable for individuals with and without heart disease?")
     
     st.markdown("### Null Hypothesis (H0)")
-    st.write("There is no significant difference between the means of the two groups based on the continuous variable.")
+    st.write("There is no significant difference between the distributions of the continuous variable for individuals with and without heart disease.")
     
     st.markdown("### Alternative Hypothesis (H1)")
-    st.write("There is a significant difference between the means of the two groups based on the continuous variable.")
+    st.write("There is a significant difference between the distributions of the continuous variable for individuals with and without heart disease.")
     
     st.markdown("### Variables")
-    st.write("Group 1: Continuous Variable")
-    st.write("Group 2: Continuous Variable")
+    st.write("Group 1: Continuous Variable (Individuals with heart disease)")
+    st.write("Group 2: Continuous Variable (Individuals without heart disease)")
     
     st.markdown("### Expected Relationship")
-    st.write("There is no specific expectation on the direction of the relationship. We are testing for any significant difference in the means.")
+    st.write("There is no specific expectation on the direction of the relationship. We are testing for any significant difference in the distributions.")
+
     
     st.markdown("### Significance Level")
     st.write("Typically set at 0.05.")
@@ -56,8 +57,8 @@ def t_test(group1, group2):
     st.subheader("Additional Metrics")
     additional_metrics_data = {
         "Metric": ["Mean", "Median", "Standard Deviation"],
-        "Group 1": [group1.mean(), group1.median(), group1.std()],
-        "Group 2": [group2.mean(), group2.median(), group2.std()]
+        "Group 1": [f"{group1.mean():.2e}", f"{group1.median():.2e}", f"{group1.std():.2e}"],
+        "Group 2": [f"{group2.mean():.2e}", f"{group2.median():.2e}", f"{group2.std():.2e}"]
     }
     st.table(additional_metrics_data)
 
@@ -65,17 +66,17 @@ def kolmogorov_smirnov_test(group1, group2):
     # Hypothesis summary
     st.subheader("Hypothesis Summary")
     st.markdown("### Research Question")
-    st.write("Is there a significant difference between the distributions of two groups based on a continuous variable?")
+    st.write("Is there a significant difference between the distributions of a continuous variable for individuals with and without heart disease?")
     
     st.markdown("### Null Hypothesis (H0)")
-    st.write("There is no significant difference between the distributions of the two groups based on the continuous variable.")
+    st.write("There is no significant difference between the distributions of the continuous variable for individuals with and without heart disease.")
     
     st.markdown("### Alternative Hypothesis (H1)")
-    st.write("There is a significant difference between the distributions of the two groups based on the continuous variable.")
+    st.write("There is a significant difference between the distributions of the continuous variable for individuals with and without heart disease.")
     
     st.markdown("### Variables")
-    st.write("Group 1: Continuous Variable")
-    st.write("Group 2: Continuous Variable")
+    st.write("Group 1: Continuous Variable (Individuals with heart disease)")
+    st.write("Group 2: Continuous Variable (Individuals without heart disease)")
     
     st.markdown("### Expected Relationship")
     st.write("There is no specific expectation on the direction of the relationship. We are testing for any significant difference in the distributions.")
@@ -106,8 +107,8 @@ def kolmogorov_smirnov_test(group1, group2):
     st.subheader("Additional Metrics")
     additional_metrics_data = {
         "Metric": ["Mean", "Median", "Standard Deviation"],
-        "Group 1": [group1.mean(), group1.median(), group1.std()],
-        "Group 2": [group2.mean(), group2.median(), group2.std()]
+        "Group 1": [f"{group1.mean():.2e}", f"{group1.median():.2e}", f"{group1.std():.2e}"],
+        "Group 2": [f"{group2.mean():.2e}", f"{group2.median():.2e}", f"{group2.std():.2e}"]
     }
     st.table(additional_metrics_data)
 
@@ -115,17 +116,17 @@ def mann_whitney_u_test(group1, group2):
     # Hypothesis summary
     st.subheader("Hypothesis Summary")
     st.markdown("### Research Question")
-    st.write("Is there a significant difference between the distributions of two groups based on a continuous variable?")
+    st.write("Is there a significant difference between the distributions of a continuous variable for individuals with and without heart disease?")
     
     st.markdown("### Null Hypothesis (H0)")
-    st.write("There is no significant difference between the distributions of the two groups based on the continuous variable.")
+    st.write("There is no significant difference between the distributions of the continuous variable for individuals with and without heart disease.")
     
     st.markdown("### Alternative Hypothesis (H1)")
-    st.write("There is a significant difference between the distributions of the two groups based on the continuous variable.")
+    st.write("There is a significant difference between the distributions of the continuous variable for individuals with and without heart disease.")
     
     st.markdown("### Variables")
-    st.write("Group 1: Continuous Variable")
-    st.write("Group 2: Continuous Variable")
+    st.write("Group 1: Continuous Variable (Individuals with heart disease)")
+    st.write("Group 2: Continuous Variable (Individuals without heart disease)")
     
     st.markdown("### Expected Relationship")
     st.write("There is no specific expectation on the direction of the relationship. We are testing for any significant difference in the distributions.")
@@ -161,8 +162,8 @@ def mann_whitney_u_test(group1, group2):
     st.subheader("Additional Metrics")
     additional_metrics_data = {
         "Metric": ["Mean", "Median", "Standard Deviation"],
-        "Group 1": [group1.mean(), group1.median(), group1.std()],
-        "Group 2": [group2.mean(), group2.median(), group2.std()]
+        "Group 1": [f"{group1.mean():.2e}", f"{group1.median():.2e}", f"{group1.std():.2e}"],
+        "Group 2": [f"{group2.mean():.2e}", f"{group2.median():.2e}", f"{group2.std():.2e}"]
     }
     st.table(additional_metrics_data)
 
@@ -170,19 +171,20 @@ def wilcoxon_signed_rank_test(data):
     # Hypothesis summary
     st.subheader("Hypothesis Summary")
     st.markdown("### Research Question")
-    st.write("Is there a significant difference between paired observations based on a continuous variable?")
+    st.write("Is there a significant difference between the distributions of a continuous variable for individuals with and without heart disease?")
     
     st.markdown("### Null Hypothesis (H0)")
-    st.write("There is no significant difference between paired observations based on the continuous variable.")
+    st.write("There is no significant difference between the distributions of the continuous variable for individuals with and without heart disease.")
     
     st.markdown("### Alternative Hypothesis (H1)")
-    st.write("There is a significant difference between paired observations based on the continuous variable.")
+    st.write("There is a significant difference between the distributions of the continuous variable for individuals with and without heart disease.")
     
     st.markdown("### Variables")
-    st.write("Paired Observations: Continuous Variable")
+    st.write("Group 1: Continuous Variable (Individuals with heart disease)")
+    st.write("Group 2: Continuous Variable (Individuals without heart disease)")
     
     st.markdown("### Expected Relationship")
-    st.write("There is no specific expectation on the direction of the relationship. We are testing for any significant difference in the paired observations.")
+    st.write("There is no specific expectation on the direction of the relationship. We are testing for any significant difference in the distributions.")
     
     st.markdown("### Significance Level")
     st.write("Typically set at 0.05.")
@@ -206,11 +208,13 @@ def wilcoxon_signed_rank_test(data):
     
     st.table(summary_data)
     
-    # Additional metrics
-    st.subheader("Additional Metrics")
-    st.write("Mean:", data.mean())
-    st.write("Median:", data.median())
-    st.write("Standard Deviation:", data.std())
+     st.subheader("Additional Metrics")
+    additional_metrics_data = {
+        "Metric": ["Mean", "Median", "Standard Deviation"],
+        "Group 1": [f"{group1.mean():.2e}", f"{group1.median():.2e}", f"{group1.std():.2e}"],
+        "Group 2": [f"{group2.mean():.2e}", f"{group2.median():.2e}", f"{group2.std():.2e}"]
+    }
+    st.table(additional_metrics_data)
 
 
 def chi_square_test(confusion_matrix):
