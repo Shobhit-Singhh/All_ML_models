@@ -401,9 +401,9 @@ def qualitative_analysis(df):
                 group1 = df[df[target_bool] == True][num_feature]
                 group2 = df[df[target_bool] == False][num_feature]
                 mann_whitney_u_test(group1, group2)
-            elif hypothesis_testing == "Wilcoxon Signed-Rank Test":
-                data = df[num_feature]
-                wilcoxon_signed_rank_test(data)
+            # elif hypothesis_testing == "Wilcoxon Signed-Rank Test":
+            #     data = df[num_feature]
+            #     wilcoxon_signed_rank_test(data)
             
         st.markdown('---')
 
