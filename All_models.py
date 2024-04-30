@@ -30,8 +30,8 @@ PROJECTS = {
 }
 
 # --- LOAD PROFILE PIC ---
-profile_pic = Image.open(os.path.join('shobhit.png'))
-banner = Image.open(os.path.join('iitg.jpg'))
+# profile_pic = Image.open(os.path.join('shobhit.png'))
+# banner = Image.open(os.path.join('iitg.jpg'))
 
 # --- HERO SECTION ---
 col1, col2 = st.columns(2, gap="small")
