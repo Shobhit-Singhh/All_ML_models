@@ -8,51 +8,180 @@ import plotly.figure_factory as ff
 from sklearn.metrics import confusion_matrix
 from scipy.stats import chi2_contingency, fisher_exact
 from scipy.stats import ttest_ind, ks_2samp, mannwhitneyu, wilcoxon
+import streamlit as st
+from scipy.stats import ttest_ind, ks_2samp, wilcoxon
 
 def t_test(group1, group2):
-    # Perform independent two-sample t-test
+    # Hypothesis summary
+    st.subheader("Hypothesis Summary")
+    st.markdown("### Research Question")
+    st.write("Is there a significant difference between the means of two groups based on a continuous variable?")
+    
+    st.markdown("### Null Hypothesis (H0)")
+    st.write("There is no significant difference between the means of the two groups based on the continuous variable.")
+    
+    st.markdown("### Alternative Hypothesis (H1)")
+    st.write("There is a significant difference between the means of the two groups based on the continuous variable.")
+    
+    st.markdown("### Variables")
+    st.write("Group 1: Continuous Variable")
+    st.write("Group 2: Continuous Variable")
+    
+    st.markdown("### Expected Relationship")
+    st.write("There is no specific expectation on the direction of the relationship. We are testing for any significant difference in the means.")
+    
+    st.markdown("### Significance Level")
+    st.write("Typically set at 0.05.")
+    
+    # Perform T-Test for independent samples
     t_statistic, p_value = ttest_ind(group1, group2)
     
-    # Display t-test information
-    st.subheader("Two-Sample t-Test")
-    st.markdown("The two-sample t-test is used to determine if there is a significant difference between the means of two independent groups.")
+    # Display T-Test information
+    st.subheader("T-Test")
+    st.markdown("The T-Test is a parametric test used to determine if there is a significant difference between the means of two independent samples.")
     
-    summary_data = {"Parameter": ["T-Statistic", "P-Value"],
-                    "Value": [f"{t_statistic:.2f}", f"{p_value:.2e}"]
-                    }
-    if t_statistic < 0:
-        st.success("The mean of group 1 is less than the mean of group 2.")
+    summary_data = {
+        "T Statistic": f"{t_statistic:.2f}",
+        "P-Value": f"{p_value:.2e}"
+    }
+    
+    if p_value < 0.05:
+        st.success("The difference in means is statistically significant. Therefore, we reject the null hypothesis.")
     else:
-        st.success("The mean of group 1 is greater than the mean of group 2.")
+        st.success("The difference in means is not statistically significant. Therefore, we fail to reject the null hypothesis.")
     
     st.table(summary_data)
-    if p_value < 0.05:
-        st.success("The difference in means is statistically significant.So, we reject the null hypothesis.")
-    else:
-        st.success("The difference in means is not statistically significant.So, we fail to reject the null hypothesis.")
-        
+    
+    # Additional metrics
+    st.subheader("Additional Metrics")
+    additional_metrics_data = {
+        "Metric": ["Mean", "Median", "Standard Deviation"],
+        "Group 1": [group1.mean(), group1.median(), group1.std()],
+        "Group 2": [group2.mean(), group2.median(), group2.std()]
+    }
+    st.table(additional_metrics_data)
 
 def kolmogorov_smirnov_test(group1, group2):
-    # Perform Kolmogorov-Smirnov test for two independent samples
-    ks_statistic, p_value = ks_2samp(group1, group2)
+    # Hypothesis summary
+    st.subheader("Hypothesis Summary")
+    st.markdown("### Research Question")
+    st.write("Is there a significant difference between the distributions of two groups based on a continuous variable?")
     
-    # Display KS test information
+    st.markdown("### Null Hypothesis (H0)")
+    st.write("There is no significant difference between the distributions of the two groups based on the continuous variable.")
+    
+    st.markdown("### Alternative Hypothesis (H1)")
+    st.write("There is a significant difference between the distributions of the two groups based on the continuous variable.")
+    
+    st.markdown("### Variables")
+    st.write("Group 1: Continuous Variable")
+    st.write("Group 2: Continuous Variable")
+    
+    st.markdown("### Expected Relationship")
+    st.write("There is no specific expectation on the direction of the relationship. We are testing for any significant difference in the distributions.")
+    
+    st.markdown("### Significance Level")
+    st.write("Typically set at 0.05.")
+    
+    # Perform Kolmogorov-Smirnov Test
+    statistic, p_value = ks_2samp(group1, group2)
+    
+    # Display Kolmogorov-Smirnov Test information
     st.subheader("Kolmogorov-Smirnov Test")
-    st.markdown("The Kolmogorov-Smirnov test is used to compare the distributions of two independent samples.")
+    st.markdown("The Kolmogorov-Smirnov Test is a non-parametric test used to determine if two samples are drawn from the same distribution.")
     
-    summary_data = {"Parameter": ["KS Statistic", "P-Value"],
-                    "Value": [f"{ks_statistic:.2f}", f"{p_value:.2e}"]
-                    }
-    if ks_statistic < 0:
-        st.success("The distribution of group 1 is less than the distribution of group 2.")
-    else:
-        st.success("The distribution of group 1 is greater than the distribution of group 2.")
-    st.table(summary_data)
+    summary_data = {
+        "Statistic": f"{statistic:.2f}",
+        "P-Value": f"{p_value:.2e}"
+    }
+    
     if p_value < 0.05:
-        st.success("The difference in distributions is statistically significant.So, we reject the null hypothesis.")
+        st.success("The difference in distributions is statistically significant. Therefore, we reject the null hypothesis.")
     else:
-        st.success("The difference in distributions is not statistically significant.So, we fail to reject the null hypothesis.")
+        st.success("The difference in distributions is not statistically significant. Therefore, we fail to reject the null hypothesis.")
+    
+    st.table(summary_data)
+    
+    # Additional metrics
+    st.subheader("Additional Metrics")
+    additional_metrics_data = {
+        "Metric": ["Mean", "Median", "Standard Deviation"],
+        "Group 1": [group1.mean(), group1.median(), group1.std()],
+        "Group 2": [group2.mean(), group2.median(), group2.std()]
+    }
+    st.table(additional_metrics_data)
+
+def wilcoxon_signed_rank_test(data):
+    # Hypothesis summary
+    st.subheader("Hypothesis Summary")
+    st.markdown("### Research Question")
+    st.write("Is there a significant difference between paired observations based on a continuous variable?")
+    
+    st.markdown("### Null Hypothesis (H0)")
+    st.write("There is no significant difference between paired observations based on the continuous variable.")
+    
+    st.markdown("### Alternative Hypothesis (H1)")
+    st.write("There is a significant difference between paired observations based on the continuous variable.")
+    
+    st.markdown("### Variables")
+    st.write("Paired Observations: Continuous Variable")
+    
+    st.markdown("### Expected Relationship")
+    st.write("There is no specific expectation on the direction of the relationship. We are testing for any significant difference in the paired observations.")
+    
+    st.markdown("### Significance Level")
+    st.write("Typically set at 0.05.")
+    
+    # Perform Wilcoxon Signed-Rank Test
+    statistic, p_value = wilcoxon(data)
+    
+    # Display Wilcoxon Signed-Rank Test information
+    st.subheader("Wilcoxon Signed-Rank Test")
+    st.markdown("The Wilcoxon Signed-Rank Test is a non-parametric test used to determine if there is a significant difference between paired observations.")
+    
+    summary_data = {
+        "Statistic": f"{statistic:.2f}",
+        "P-Value": f"{p_value:.2e}"
+    }
+    
+    if p_value < 0.05:
+        st.success("The difference in paired observations is statistically significant. Therefore, we reject the null hypothesis.")
+    else:
+        st.success("The difference in paired observations is not statistically significant. Therefore, we fail to reject the null hypothesis.")
+    
+    st.table(summary_data)
+    
+    # Additional metrics
+    st.subheader("Additional Metrics")
+    st.write("Mean:", data.mean())
+    st.write("Median:", data.median())
+    st.write("Standard Deviation:", data.std())
+
+import streamlit as st
+from scipy.stats import mannwhitneyu
+
 def mann_whitney_u_test(group1, group2):
+    # Hypothesis summary
+    st.subheader("Hypothesis Summary")
+    st.markdown("### Research Question")
+    st.write("Is there a significant difference between the distributions of two groups based on a continuous variable?")
+    
+    st.markdown("### Null Hypothesis (H0)")
+    st.write("There is no significant difference between the distributions of the two groups based on the continuous variable.")
+    
+    st.markdown("### Alternative Hypothesis (H1)")
+    st.write("There is a significant difference between the distributions of the two groups based on the continuous variable.")
+    
+    st.markdown("### Variables")
+    st.write("Group 1: Binary/Categorical Variable")
+    st.write("Group 2: Continuous Variable")
+    
+    st.markdown("### Expected Relationship")
+    st.write("There is no specific expectation on the direction of the relationship. We are testing for any significant difference in the distributions.")
+    
+    st.markdown("### Significance Level")
+    st.write("Typically set at 0.05.")
+    
     # Perform Mann-Whitney U test for two independent samples
     u_statistic, p_value = mannwhitneyu(group1, group2)
     
@@ -73,25 +202,20 @@ def mann_whitney_u_test(group1, group2):
     st.table(summary_data)
     
     if p_value < 0.05:
-        st.success("The difference in distributions is statistically significant.So, we reject the null hypothesis.")
+        st.success("The difference in distributions is statistically significant. Therefore, we reject the null hypothesis.")
     else:
-        st.success("The difference in distributions is not statistically significant.So, we fail to reject the null hypothesis.")
-def wilcoxon_signed_rank_test(data):
-    # Perform Wilcoxon signed-rank test for paired samples
-    _, p_value = wilcoxon(data)
+        st.success("The difference in distributions is not statistically significant. Therefore, we fail to reject the null hypothesis.")
     
-    # Display Wilcoxon signed-rank test information
-    st.subheader("Wilcoxon Signed-Rank Test")
-    st.markdown("The Wilcoxon signed-rank test is used to determine if there is a significant difference between paired samples.")
-    
-    summary_data = {
-        "P-Value": f"{p_value:.2e}"
+    # Additional metrics
+    st.subheader("Additional Metrics")
+    additional_metrics_data = {
+        "Metric": ["Mean", "Median", "Standard Deviation"],
+        "Group 1": [group1.mean(), group1.median(), group1.std()],
+        "Group 2": [group2.mean(), group2.median(), group2.std()]
     }
-    st.table(summary_data)
-    if p_value < 0.05:
-        st.success("The difference in distributions is statistically significant.So, we reject the null hypothesis.")
-    else:
-        st.success("The difference in distributions is not statistically significant.So, we fail to reject the null hypothesis.")
+    st.table(additional_metrics_data)
+
+
 def chi_square_test(confusion_matrix):
     chi2, p, dof, ex = chi2_contingency(confusion_matrix)
 
