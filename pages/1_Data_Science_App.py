@@ -1050,7 +1050,7 @@ def Linear_Regression(X_train, X_test, y_train, y_test):
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
         
-        show_feature_weights_table(best_model, X_train)
+        # show_feature_weights_table(best_model, X_train)
         
         st.header("Model Evaluation:")
         st.write("Training Set:")
@@ -1098,7 +1098,7 @@ def Logistic_Regression(X_train, X_test, y_train, y_test):
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
         
-        show_feature_weights_table(best_model, X_train)
+        # show_feature_weights_table(best_model, X_train)
         
         st.header("Model Evaluation:")
         st.write("Training Set:")
@@ -1144,7 +1144,7 @@ def Support_Vector_Machine(X_train, X_test, y_train, y_test):
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
         
-        show_feature_weights_table(best_model, X_train)
+        # show_feature_weights_table(best_model, X_train)
         
         st.header("Model Evaluation:")
         st.write("Training Set:")
@@ -1191,7 +1191,7 @@ def K_Nearest_Neighbour(X_train, X_test, y_train, y_test):
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
         
-        show_feature_weights_table(best_model, X_train)
+        # show_feature_weights_table(best_model, X_train)
         
         st.header("Model Evaluation:")
         st.write("Training Set:")
@@ -1234,7 +1234,7 @@ def Decision_Tree(X_train, X_test, y_train, y_test):
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
         
-        show_feature_weights_table(best_model, X_train)
+        # show_feature_weights_table(best_model, X_train)
         
         st.header("Model Evaluation:")
         st.write("Training Set:")
@@ -1278,7 +1278,7 @@ def Random_Forest(X_train, X_test, y_train, y_test):
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
         
-        show_feature_weights_table(best_model, X_train)
+        # show_feature_weights_table(best_model, X_train)
         
         st.header("Model Evaluation:")
         st.write("Training Set:")
@@ -1319,7 +1319,7 @@ def Ada_Boost(X_train, X_test, y_train, y_test):
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
         
-        show_feature_weights_table(best_model, X_train)
+        # show_feature_weights_table(best_model, X_train)
         
         st.header("Model Evaluation:")
         st.write("Training Set:")
@@ -1363,7 +1363,7 @@ def Gradient_Boost(X_train, X_test, y_train, y_test):
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
         
-        show_feature_weights_table(best_model, X_train)
+        # show_feature_weights_table(best_model, X_train)
         
         st.header("Model Evaluation:")
         st.write("Training Set:")
@@ -1406,7 +1406,7 @@ def XG_Boost(X_train, X_test, y_train, y_test):
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
         
-        show_feature_weights_table(best_model, X_train)
+        # show_feature_weights_table(best_model, X_train)
         
         st.header("Model Evaluation:")
         st.write("Training Set:")
@@ -1450,7 +1450,7 @@ def CatBoost(X_train, X_test, y_train, y_test):
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
         
-        show_feature_weights_table(best_model, X_train)
+        # show_feature_weights_table(best_model, X_train)
         
         st.header("Model Evaluation:")
         st.write("Training Set:")
