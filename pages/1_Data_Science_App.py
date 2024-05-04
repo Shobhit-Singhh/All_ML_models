@@ -39,7 +39,8 @@ def show_feature_weights_table(model, feature_names):
             return
         
         if len(feature_names) != len(model.coef_[0]):
-            st.error("The number of feature names doesn't match the number of coefficients.")
+            st.warning("The number of feature names doesn't match the number of coefficients.")
+            st.warning(f"Number of feature names: {len(feature_names)}, Number of coefficients: {len(model.coef_[0])}")
             return
         
         weights = model.coef_[0]
@@ -50,7 +51,8 @@ def show_feature_weights_table(model, feature_names):
             return
         
         if len(feature_names) != len(model.feature_importances_):
-            st.error("The number of feature names doesn't match the number of feature importances.")
+            st.warning("The number of feature names doesn't match the number of feature importances.")
+            st.warning(f"Number of feature names: {len(feature_names)}, Number of feature importances: {len(model.feature_importances_)}")
             return
         
         weights = model.feature_importances_
@@ -61,7 +63,8 @@ def show_feature_weights_table(model, feature_names):
             return
         
         if len(feature_names) != len(model.feature_importances_):
-            st.error("The number of feature names doesn't match the number of feature importances.")
+            st.warning("The number of feature names doesn't match the number of feature importances.")
+            st.warning(f"Number of feature names: {len(feature_names)}, Number of feature importances: {len(model.feature_importances_)}")
             return
         
         weights = model.feature_importances_
