@@ -462,7 +462,9 @@ def plot_data(df):
             plot = st.checkbox("plot your data")
             
     if pair:
+        st.write("Pair plot:")
         sns.pairplot(df)
+        st.pyplot()  
     if plot:
         plot_with_pygwalker(df)
             
