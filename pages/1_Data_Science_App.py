@@ -32,28 +32,33 @@ import pygwalker as pyg
 import streamlit.components.v1 as components
 w.filterwarnings("ignore")
 
-def show_feature_weights_table(model, X_train):
-    if not hasattr(model, 'coef_'):
-        st.error("The model doesn't have coefficients. Make sure it's a trained logistic regression model.")
-        return
+def calculate_feature_weights(model, X_train):
+    if isinstance(model, (LinearRegression, SVC)):
+        if not hasattr(model, 'coef_'):
+            raise ValueError("The model doesn't have coefficients. Make sure it's a trained linear model.")
+        feature_weights = np.abs(model.coef_)
+
+    elif isinstance(model, (DecisionTreeClassifier, RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier)):
+        if not hasattr(model, 'feature_importances_'):
+            raise ValueError("The model doesn't have feature importances. Make sure it's a tree-based model.")
+        feature_weights = model.feature_importances_
+
+    elif isinstance(model, (CatBoostClassifier, XGBClassifier)):
+        if not hasattr(model, 'feature_importances_'):
+            raise ValueError("The model doesn't have feature importances. Make sure it's a CatBoost or XGBoost model.")
+        feature_weights = model.feature_importances_
     
-    if X_train is None or len(X_train) == 0:
-        st.error("Training data is empty.")
-        return
-    
+    else:
+        raise ValueError("Unsupported model type. Supported models are Linear Regression, SVM, Decision Tree, Random Forest, AdaBoost, Gradient Boosting, CatBoost, and XGBoost.")
+
+    # Normalize feature weights
+    feature_weights = feature_weights / np.sum(feature_weights)
+
+    # Create DataFrame with feature names and weights
     feature_names = X_train.columns.tolist()
-    
-    if len(feature_names) != len(model.coef_[0]):
-        st.error("The number of feature names doesn't match the number of coefficients.")
-        return
-    
-    weights = model.coef_[0]
-    weights_abs = [abs(weight) for weight in weights]
-    weights_df = pd.DataFrame({'Feature': feature_names, 'Weight': weights, 'Absolute Weight': weights_abs})
-    weights_df = weights_df.sort_values(by='Absolute Weight', ascending=False)
-    
-    st.subheader("Feature Weights (Sorted by Absolute Value)")
-    st.table(weights_df.drop(columns='Absolute Weight'))
+    weights_df = pd.DataFrame({'Feature': feature_names, 'Weight': feature_weights})
+
+    return weights_df
 
 
 def compare_distribution(df, dummy, col=None):
