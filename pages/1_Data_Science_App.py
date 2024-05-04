@@ -32,6 +32,28 @@ import pygwalker as pyg
 import streamlit.components.v1 as components
 w.filterwarnings("ignore")
 
+def show_feature_weights_table(model, X_train):
+    if not hasattr(model, 'coef_'):
+        st.error("The model doesn't have coefficients. Make sure it's a trained logistic regression model.")
+        return
+    
+    if X_train is None or len(X_train) == 0:
+        st.error("Training data is empty.")
+        return
+    
+    feature_names = X_train.columns.tolist()
+    
+    if len(feature_names) != len(model.coef_[0]):
+        st.error("The number of feature names doesn't match the number of coefficients.")
+        return
+    
+    weights = model.coef_[0]
+    weights_df = pd.DataFrame({'Feature': feature_names, 'Weight': weights})
+    weights_df = weights_df.sort_values(by='Weight', ascending=False)
+    
+    st.subheader("Feature Weights")
+    st.table(weights_df)
+
 
 def compare_distribution(df, dummy, col=None):
     if col is None:
@@ -1024,7 +1046,9 @@ def Linear_Regression(X_train, X_test, y_train, y_test):
         best_model = grid_search.best_estimator_
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
-
+        
+        show_feature_weights_table(best_model, X_train)
+        
         st.header("Model Evaluation:")
         st.write("Training Set:")
         st.write(f"Mean Squared Error: {mean_squared_error(y_train, y_pred_train)}")
@@ -1033,6 +1057,7 @@ def Linear_Regression(X_train, X_test, y_train, y_test):
         st.write("Test Set:")
         st.write(f"Mean Squared Error: {mean_squared_error(y_test, y_pred_test)}")
         st.write(f"R-squared: {r2_score(y_test, y_pred_test)}")
+        
 def Logistic_Regression(X_train, X_test, y_train, y_test):
     st.header("Grid Search for Logistic Regression")
     st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
@@ -1069,7 +1094,9 @@ def Logistic_Regression(X_train, X_test, y_train, y_test):
         best_model = grid_search.best_estimator_
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
-
+        
+        show_feature_weights_table(best_model, X_train)
+        
         st.header("Model Evaluation:")
         st.write("Training Set:")
         st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train)}")
@@ -1084,6 +1111,7 @@ def Logistic_Regression(X_train, X_test, y_train, y_test):
         st.write(confusion_matrix(y_test, y_pred_test))
         st.write("Classification Report:")
         st.text(classification_report(y_test, y_pred_test))
+        
 def Support_Vector_Machine(X_train, X_test, y_train, y_test):
     st.header("Grid Search for SVM")
     st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
@@ -1112,7 +1140,9 @@ def Support_Vector_Machine(X_train, X_test, y_train, y_test):
         best_model = grid_search.best_estimator_
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
-
+        
+        show_feature_weights_table(best_model, X_train)
+        
         st.header("Model Evaluation:")
         st.write("Training Set:")
         st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train)}")
@@ -1157,7 +1187,9 @@ def K_Nearest_Neighbour(X_train, X_test, y_train, y_test):
         best_model = grid_search.best_estimator_
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
-
+        
+        show_feature_weights_table(best_model, X_train)
+        
         st.header("Model Evaluation:")
         st.write("Training Set:")
         st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train)}")
@@ -1198,7 +1230,9 @@ def Decision_Tree(X_train, X_test, y_train, y_test):
         best_model = grid_search.best_estimator_
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
-
+        
+        show_feature_weights_table(best_model, X_train)
+        
         st.header("Model Evaluation:")
         st.write("Training Set:")
         st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train)}")
@@ -1240,7 +1274,9 @@ def Random_Forest(X_train, X_test, y_train, y_test):
         best_model = grid_search.best_estimator_
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
-
+        
+        show_feature_weights_table(best_model, X_train)
+        
         st.header("Model Evaluation:")
         st.write("Training Set:")
         st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train)}")
@@ -1279,7 +1315,9 @@ def Ada_Boost(X_train, X_test, y_train, y_test):
         best_model = grid_search.best_estimator_
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
-
+        
+        show_feature_weights_table(best_model, X_train)
+        
         st.header("Model Evaluation:")
         st.write("Training Set:")
         st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train)}")
@@ -1321,7 +1359,9 @@ def Gradient_Boost(X_train, X_test, y_train, y_test):
         best_model = grid_search.best_estimator_
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
-
+        
+        show_feature_weights_table(best_model, X_train)
+        
         st.header("Model Evaluation:")
         st.write("Training Set:")
         st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train)}")
@@ -1362,7 +1402,9 @@ def XG_Boost(X_train, X_test, y_train, y_test):
         best_model = grid_search.best_estimator_
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
-
+        
+        show_feature_weights_table(best_model, X_train)
+        
         st.header("Model Evaluation:")
         st.write("Training Set:")
         st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train)}")
@@ -1404,7 +1446,9 @@ def CatBoost(X_train, X_test, y_train, y_test):
         best_model = grid_search.best_estimator_
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
-
+        
+        show_feature_weights_table(best_model, X_train)
+        
         st.header("Model Evaluation:")
         st.write("Training Set:")
         st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train)}")
