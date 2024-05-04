@@ -32,7 +32,7 @@ import pygwalker as pyg
 import streamlit.components.v1 as components
 w.filterwarnings("ignore")
 
-def show_feature_weights_table(model, feature_names):
+def show_feature_weights(model, feature_names):
     if isinstance(model, (LinearRegression, LogisticRegression)):
         if not hasattr(model, 'coef_'):
             st.error("The model doesn't have coefficients. Make sure it's a trained linear model.")
@@ -41,6 +41,8 @@ def show_feature_weights_table(model, feature_names):
         if len(feature_names) != len(model.coef_[0]):
             st.warning("The number of feature names doesn't match the number of coefficients.")
             st.warning(f"Number of feature names: {len(feature_names)}, Number of coefficients: {len(model.coef_[0])}")
+            st.warning("This may indicate a discrepancy between the feature set and the model coefficients.")
+            st.warning("Check if the correct feature names are provided or if there are any issues with feature selection.")
             return
         
         weights = model.coef_[0]
@@ -53,6 +55,8 @@ def show_feature_weights_table(model, feature_names):
         if len(feature_names) != len(model.feature_importances_):
             st.warning("The number of feature names doesn't match the number of feature importances.")
             st.warning(f"Number of feature names: {len(feature_names)}, Number of feature importances: {len(model.feature_importances_)}")
+            st.warning("This may indicate a discrepancy between the feature set and the model feature importances.")
+            st.warning("Check if the correct feature names are provided or if there are any issues with feature selection.")
             return
         
         weights = model.feature_importances_
@@ -65,6 +69,8 @@ def show_feature_weights_table(model, feature_names):
         if len(feature_names) != len(model.feature_importances_):
             st.warning("The number of feature names doesn't match the number of feature importances.")
             st.warning(f"Number of feature names: {len(feature_names)}, Number of feature importances: {len(model.feature_importances_)}")
+            st.warning("This may indicate a discrepancy between the feature set and the model feature importances.")
+            st.warning("Check if the correct feature names are provided or if there are any issues with feature selection.")
             return
         
         weights = model.feature_importances_
@@ -78,7 +84,6 @@ def show_feature_weights_table(model, feature_names):
     
     st.subheader("Feature Weights")
     st.table(weights_df)
-
 
 def compare_distribution(df, dummy, col=None):
     if col is None:
