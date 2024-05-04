@@ -32,58 +32,31 @@ import pygwalker as pyg
 import streamlit.components.v1 as components
 w.filterwarnings("ignore")
 
-def show_feature_weights_table(model, feature_names):
-    if isinstance(model, (LinearRegression, LogisticRegression)):
-        if not hasattr(model, 'coef_'):
-            st.error("The model doesn't have coefficients. Make sure it's a trained linear model.")
-            return
-        
-        if len(feature_names) != len(model.coef_[0]):
-            st.warning("The number of feature names doesn't match the number of coefficients.")
-            st.warning(f"Number of feature names: {len(feature_names)}, Number of coefficients: {len(model.coef_[0])}")
-            st.warning("This may indicate a discrepancy between the feature set and the model coefficients.")
-            st.warning("Check if the correct feature names are provided or if there are any issues with feature selection.")
-            return
-        
-        weights = model.coef_[0]
-    
-    elif isinstance(model, (RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier, DecisionTreeClassifier)):
-        if not hasattr(model, 'feature_importances_'):
-            st.error("The model doesn't have feature importances. Make sure it's a trained tree-based model.")
-            return
-        
-        if len(feature_names) != len(model.feature_importances_):
-            st.warning("The number of feature names doesn't match the number of feature importances.")
-            st.warning(f"Number of feature names: {len(feature_names)}, Number of feature importances: {len(model.feature_importances_)}")
-            st.warning("This may indicate a discrepancy between the feature set and the model feature importances.")
-            st.warning("Check if the correct feature names are provided or if there are any issues with feature selection.")
-            return
-        
-        weights = model.feature_importances_
-    
-    elif isinstance(model, (CatBoostClassifier, XGBClassifier)):
-        if not hasattr(model, 'feature_importances_'):
-            st.error("The model doesn't have feature importances. Make sure it's a trained tree-based model.")
-            return
-        
-        if len(feature_names) != len(model.feature_importances_):
-            st.warning("The number of feature names doesn't match the number of feature importances.")
-            st.warning(f"Number of feature names: {len(feature_names)}, Number of feature importances: {len(model.feature_importances_)}")
-            st.warning("This may indicate a discrepancy between the feature set and the model feature importances.")
-            st.warning("Check if the correct feature names are provided or if there are any issues with feature selection.")
-            return
-        
-        weights = model.feature_importances_
-    
-    else:
-        st.error("Unsupported model type. Supported models are Linear Regression, Logistic Regression, Random Forest, AdaBoost, Gradient Boosting, Decision Tree, CatBoost, and XGBoost.")
+import streamlit as st
+import pandas as pd
+
+def show_feature_weights_table(model, X_train):
+    if not hasattr(model, 'coef_'):
+        st.error("The model doesn't have coefficients. Make sure it's a trained logistic regression model.")
         return
     
-    weights_df = pd.DataFrame({'Feature': feature_names, 'Weight': weights})
-    weights_df = weights_df.sort_values(by='Weight', key=np.abs, ascending=False)
+    if X_train is None or len(X_train) == 0:
+        st.error("Training data is empty.")
+        return
     
-    st.subheader("Feature Weights")
-    st.table(weights_df)
+    feature_names = X_train.columns.tolist()
+    
+    if len(feature_names) != len(model.coef_[0]):
+        st.error("The number of feature names doesn't match the number of coefficients.")
+        return
+    
+    weights = model.coef_[0]
+    weights_abs = [abs(weight) for weight in weights]
+    weights_df = pd.DataFrame({'Feature': feature_names, 'Weight': weights, 'Absolute Weight': weights_abs})
+    weights_df = weights_df.sort_values(by='Absolute Weight', ascending=False)
+    
+    st.subheader("Feature Weights (Sorted by Absolute Value)")
+    st.table(weights_df.drop(columns='Absolute Weight'))
 
 def compare_distribution(df, dummy, col=None):
     if col is None:
