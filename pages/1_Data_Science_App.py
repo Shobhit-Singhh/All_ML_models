@@ -32,33 +32,49 @@ import pygwalker as pyg
 import streamlit.components.v1 as components
 w.filterwarnings("ignore")
 
-def show_feature_weights_table(model, X_train):
-    if isinstance(model, (LinearRegression, SVC)):
+def show_feature_weights(model, feature_names):
+    if isinstance(model, (LinearRegression, LogisticRegression)):
         if not hasattr(model, 'coef_'):
-            raise ValueError("The model doesn't have coefficients. Make sure it's a trained linear model.")
-        feature_weights = np.abs(model.coef_)
-
-    elif isinstance(model, (DecisionTreeClassifier, RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier)):
+            st.error("The model doesn't have coefficients. Make sure it's a trained linear model.")
+            return
+        
+        if len(feature_names) != len(model.coef_[0]):
+            st.error("The number of feature names doesn't match the number of coefficients.")
+            return
+        
+        weights = model.coef_[0]
+    
+    elif isinstance(model, (RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier, DecisionTreeClassifier)):
         if not hasattr(model, 'feature_importances_'):
-            raise ValueError("The model doesn't have feature importances. Make sure it's a tree-based model.")
-        feature_weights = model.feature_importances_
-
+            st.error("The model doesn't have feature importances. Make sure it's a trained tree-based model.")
+            return
+        
+        if len(feature_names) != len(model.feature_importances_):
+            st.error("The number of feature names doesn't match the number of feature importances.")
+            return
+        
+        weights = model.feature_importances_
+    
     elif isinstance(model, (CatBoostClassifier, XGBClassifier)):
         if not hasattr(model, 'feature_importances_'):
-            raise ValueError("The model doesn't have feature importances. Make sure it's a CatBoost or XGBoost model.")
-        feature_weights = model.feature_importances_
+            st.error("The model doesn't have feature importances. Make sure it's a trained tree-based model.")
+            return
+        
+        if len(feature_names) != len(model.feature_importances_):
+            st.error("The number of feature names doesn't match the number of feature importances.")
+            return
+        
+        weights = model.feature_importances_
     
     else:
-        raise ValueError("Unsupported model type. Supported models are Linear Regression, SVM, Decision Tree, Random Forest, AdaBoost, Gradient Boosting, CatBoost, and XGBoost.")
-
-    # Normalize feature weights
-    feature_weights = feature_weights / np.sum(feature_weights)
-
-    # Create DataFrame with feature names and weights
-    feature_names = X_train.columns.tolist()
-    weights_df = pd.DataFrame({'Feature': feature_names, 'Weight': feature_weights})
-
-    return weights_df
+        st.error("Unsupported model type. Supported models are Linear Regression, Logistic Regression, Random Forest, AdaBoost, Gradient Boosting, Decision Tree, CatBoost, and XGBoost.")
+        return
+    
+    weights_df = pd.DataFrame({'Feature': feature_names, 'Weight': weights})
+    weights_df = weights_df.sort_values(by='Weight', key=np.abs, ascending=False)
+    
+    st.subheader("Feature Weights")
+    st.table(weights_df)
 
 
 def compare_distribution(df, dummy, col=None):
