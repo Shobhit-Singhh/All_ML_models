@@ -32,7 +32,7 @@ import pygwalker as pyg
 import streamlit.components.v1 as components
 w.filterwarnings("ignore")
 
-def calculate_feature_weights(model, X_train):
+def show_feature_weights_table(model, X_train):
     if isinstance(model, (LinearRegression, SVC)):
         if not hasattr(model, 'coef_'):
             raise ValueError("The model doesn't have coefficients. Make sure it's a trained linear model.")
