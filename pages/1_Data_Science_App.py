@@ -35,6 +35,31 @@ w.filterwarnings("ignore")
 import streamlit as st
 import pandas as pd
 
+def plot_data(df):
+    # Get list of column names for dropdown
+    columns = df.columns.tolist()
+
+    # Create dropdown menu for selecting target variable
+    target_variable = st.selectbox("Select Target Variable", options=columns)
+
+    # Arrange the variables in a 3-column matrix for pairplot
+    num_columns = len(columns)
+    num_rows = (num_columns - 1) // 3 + 1
+
+    fig, axes = plt.subplots(num_rows, 3, figsize=(15, 5*num_rows))
+    axes = axes.flatten()
+
+    for i, column in enumerate(columns):
+        if column != target_variable:
+            sns.scatterplot(data=df, x=column, y=target_variable, ax=axes[i])
+            axes[i].set_title(f'{target_variable} vs {column}')
+
+    # Hide empty subplots
+    for j in range(i+1, len(axes)):
+        axes[j].set_visible(False)
+
+    st.pyplot(fig)
+    
 def show_feature_weights_table(model, X_train):
     if not hasattr(model, 'coef_'):
         st.error("The model doesn't have coefficients. Make sure it's a trained logistic regression model.")
@@ -462,9 +487,8 @@ def plot_data(df):
             plot = st.checkbox("plot your data")
             
     if pair:
-        st.write("Pair plot:")
-        sns.pairplot(df)
-        st.pyplot()  
+        plot_data(df)
+        
     if plot:
         plot_with_pygwalker(df)
             
