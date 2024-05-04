@@ -48,11 +48,12 @@ def show_feature_weights_table(model, X_train):
         return
     
     weights = model.coef_[0]
-    weights_df = pd.DataFrame({'Feature': feature_names, 'Weight': weights})
-    weights_df = weights_df.sort_values(by='Weight', ascending=False)
+    weights_abs = [abs(weight) for weight in weights]
+    weights_df = pd.DataFrame({'Feature': feature_names, 'Weight': weights, 'Absolute Weight': weights_abs})
+    weights_df = weights_df.sort_values(by='Absolute Weight', ascending=False)
     
-    st.subheader("Feature Weights")
-    st.table(weights_df)
+    st.subheader("Feature Weights (Sorted by Absolute Value)")
+    st.table(weights_df.drop(columns='Absolute Weight'))
 
 
 def compare_distribution(df, dummy, col=None):
