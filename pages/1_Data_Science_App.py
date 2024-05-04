@@ -1098,7 +1098,7 @@ def Logistic_Regression(X_train, X_test, y_train, y_test):
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
         
-        # show_feature_weights_table(best_model, X_train)
+        show_feature_weights_table(best_model, X_train)
         
         st.header("Model Evaluation:")
         st.write("Training Set:")
