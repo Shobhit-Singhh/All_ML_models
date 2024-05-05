@@ -66,27 +66,15 @@ def plot_data_1(df):
     st.pyplot(fig)
     
 def show_feature_weights_table(model, X_train):
-    if not hasattr(model, 'coef_'):
-        st.error("The model doesn't have coefficients. Make sure it's a trained logistic regression model.")
-        return
+    # Add a constant to X_train for intercept
+    X_train_const = sm.add_constant(X_train)
     
-    if X_train is None or len(X_train) == 0:
-        st.error("Training data is empty.")
-        return
+    # Fit logistic regression model using statsmodels
+    logit_model = sm.Logit(model.predict(X_train), X_train_const)
+    result = logit_model.fit(disp=0)  # disp=0 to suppress convergence messages
     
-    feature_names = X_train.columns.tolist()
-    
-    if len(feature_names) != len(model.coef_[0]):
-        st.error("The number of feature names doesn't match the number of coefficients.")
-        return
-    
-    weights = model.coef_[0]
-    weights_abs = [abs(weight) for weight in weights]
-    weights_df = pd.DataFrame({'Feature': feature_names, 'Weight': weights, 'Absolute Weight': weights_abs})
-    weights_df = weights_df.sort_values(by='Absolute Weight', ascending=False)
-    
-    st.subheader("Feature Weights (Sorted by Absolute Value)")
-    st.table(weights_df.drop(columns='Absolute Weight'))
+    # Print summary of the model
+    st.write(result.summary())
 
 def compare_distribution(df, dummy, col=None):
     if col is None:
@@ -1130,38 +1118,45 @@ def Logistic_Regression(X_train, X_test, y_train, y_test):
     }
     
     if st.checkbox("Tuning model"):
-        model = LogisticRegression()
-        grid_search = GridSearchCV(model, param_grid, scoring='accuracy', cv=cv)
-        grid_search.fit(X_train, y_train)
+        # Convert the data to numpy arrays
+        X_train_np = X_train.to_numpy()
+        X_test_np = X_test.to_numpy()
+        y_train_np = y_train.to_numpy()
+        y_test_np = y_test.to_numpy()
         
-        # best parameters
-        best_params = grid_search.best_params_
-        st.write("Best Parameters:", best_params)
-        best_model = grid_search.best_estimator_
-        y_pred_train = best_model.predict(X_train)
-        y_pred_test = best_model.predict(X_test)
+        # Perform grid search with logistic regression
+        best_score = -1
+        best_model = None
+        for penalty_option in penalty:
+            for C_option in param_grid['C']:
+                for fit_intercept_option in fit_intercept:
+                    for solver_option in solver:
+                        for l1_ratio_option in param_grid['l1_ratio']:
+                            for intercept_scaling_option in param_grid['intercept_scaling']:
+                                model = sm.Logit(y_train_np, sm.add_constant(X_train_np)).fit_regularized(method='l1_cvxopt_cp', alpha=C_option)
+                                y_pred_train = model.predict(sm.add_constant(X_train_np))
+                                y_pred_test = model.predict(sm.add_constant(X_test_np))
+                                score = accuracy_score(y_train_np, (y_pred_train > 0.5).astype(int))
+                                if score > best_score:
+                                    best_score = score
+                                    best_model = model
         
-        # Print coefficients and intercept
-        st.header("Model Coefficients and Intercept:")
-        st.write("Coefficients:")
-        for feature, coef in zip(["const"] + list(X_train.columns), best_model.coef_[0]):
-            st.write(f"{feature}: {coef}")
-        st.write(f"Intercept (const): {best_model.intercept_[0]}")
+        show_feature_weights_table(best_model, X_train)
         
         st.header("Model Evaluation:")
         st.write("Training Set:")
-        st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train)}")
+        st.write(f"Accuracy: {accuracy_score(y_train, (best_model.predict(sm.add_constant(X_train)) > 0.5).astype(int))}")
         st.write("Confusion Matrix:")
-        st.write(confusion_matrix(y_train, y_pred_train))
+        st.write(confusion_matrix(y_train, (best_model.predict(sm.add_constant(X_train)) > 0.5).astype(int)))
         st.write("Classification Report:")
-        st.text(classification_report(y_train, y_pred_train))
+        st.text(classification_report(y_train, (best_model.predict(sm.add_constant(X_train)) > 0.5).astype(int)))
 
         st.write("Test Set:")
-        st.write(f"Accuracy: {accuracy_score(y_test, y_pred_test)}")
+        st.write(f"Accuracy: {accuracy_score(y_test, (best_model.predict(sm.add_constant(X_test)) > 0.5).astype(int))}")
         st.write("Confusion Matrix:")
-        st.write(confusion_matrix(y_test, y_pred_test))
+        st.write(confusion_matrix(y_test, (best_model.predict(sm.add_constant(X_test)) > 0.5).astype(int)))
         st.write("Classification Report:")
-        st.text(classification_report(y_test, y_pred_test))
+        st.text(classification_report(y_test, (best_model.predict(sm.add_constant(X_test)) > 0.5).astype(int)))
         
 def Support_Vector_Machine(X_train, X_test, y_train, y_test):
     st.header("Grid Search for SVM")
