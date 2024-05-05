@@ -361,7 +361,7 @@ def qualitative_analysis(df):
         Qualitative1, Quantitative1 = st.tabs(["Analise with Categorical feature", "Analise with Continuous feature"])
         
         with Qualitative1:
-            st.subheader("Categorical vs Continuous")
+            st.subheader("Categorical vs Categorical")
             bool_feature = st.selectbox("Select the feature for analysis", bool_col)
             
             st.subheader("Distribution")
