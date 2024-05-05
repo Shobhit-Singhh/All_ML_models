@@ -35,7 +35,7 @@ w.filterwarnings("ignore")
 import streamlit as st
 import pandas as pd
 
-def plot_data(df):
+def plot_data_1(df):
     # Get list of column names for dropdown
     columns = df.columns.tolist()
 
@@ -483,11 +483,11 @@ def plot_data(df):
     with tab2:
         extender_3 = st.expander("Plot your data")
         with extender_3:
-            pair = st.checkbox("pair plot",key=17831876)
+            pair = st.checkbox("pair plot")
             plot = st.checkbox("plot your data")
             
     if pair:
-        plot_data(df)
+        plot_data_1(df)
         
     if plot:
         plot_with_pygwalker(df)
