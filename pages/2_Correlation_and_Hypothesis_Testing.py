@@ -403,10 +403,22 @@ def qualitative_analysis(df):
             fig_density = px.histogram(df, x=num_feature, color=target_bool, marginal='rug', labels={'color': target_bool}, title=f"Distribution of {num_feature} by {target_bool}")
             st.plotly_chart(fig_density)
             
-            # Plot Box Plot
-            st.subheader("Box Plot")
-            fig_box = px.box(df, x=target_bool, y=num_feature, labels={'y': num_feature, 'color': target_bool}, title=f"Box Plot of {num_feature} by {target_bool}")
-            st.plotly_chart(fig_box)
+            st.subheader("5-Number Summary")
+
+            # Function to calculate 5-number summary
+            def five_number_summary(data):
+                minimum = np.min(data)
+                q1 = np.percentile(data, 25)
+                median = np.percentile(data, 50)
+                q3 = np.percentile(data, 75)
+                maximum = np.max(data)
+                return minimum, q1, median, q3, maximum
+            
+            # Calculate summary for each category
+            summary_data = []
+            for category, group_data in df.groupby(target_bool)[num_feature]:
+                summary_data.append([category] + list(five_number_summary(group_data)))
+
             
             hypothesis_testing = st.selectbox("Select Hypothesis Testing", ['T-Test', "Kolmogorov-Smirnov Test", "Mann-Whitney U Test"])
             
