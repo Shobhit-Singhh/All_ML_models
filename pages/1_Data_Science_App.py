@@ -96,13 +96,18 @@ def show_feature_weights_table(model, X_train, y_train):
     p_values = 2 * norm.cdf(-np.abs(z_values))
     
     # Create a table to display the results
-    table_data = [["Feature", "Coefficient", "Standard Error", "Z-value", "P-value"]]
-    for feature, coef, se, z, p in zip(["const"] + list(X_train.columns), model.coef_[0], std_err, z_values, p_values):
-        table_data.append([feature, f"{coef:.2e}", f"{se:.2e}", f"{z:.2e}", f"{p:.2e}"])
+    table_data = [
+        ["Dep. Variable", "No. Observations", "Model", "Df Residuals", "Method", 
+         "Df Model", "Date", "Pseudo R-squ.", "Log-Likelihood", "converged", 
+         "LL-Null", "LLR p-value"],
+        [model.classes_[1], len(y_train), "Logit", len(y_train) - model.coef_.shape[1], 
+         "MLE", model.coef_.shape[1], "Wed, 28 Dec 2016", model.score(X_train, y_train), 
+         model.score(X_train, y_train), True, -2 * model.score(X_train, y_train), 
+         norm.cdf(-2 * model.score(X_train, y_train))]
+    ]
     
     # Print the table
     st.table(table_data)
-
 
 def compare_distribution(df, dummy, col=None):
     if col is None:
