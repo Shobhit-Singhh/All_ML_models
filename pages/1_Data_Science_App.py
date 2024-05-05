@@ -51,8 +51,13 @@ def plot_data_1(df):
 
     for i, column in enumerate(columns):
         if column != target_variable:
-            sns.scatterplot(data=df, x=column, y=target_variable, ax=axes[i])
-            axes[i].set_title(f'{target_variable} vs {column}')
+            # Check if unique values are less than 5, then plot histogram
+            if len(df[column].unique()) < 5:
+                sns.histplot(data=df, x=column, ax=axes[i], kde=True)
+                axes[i].set_title(f'Histogram of {column}')
+            else:
+                sns.scatterplot(data=df, x=column, y=target_variable, ax=axes[i])
+                axes[i].set_title(f'{target_variable} vs {column}')
 
     # Hide empty subplots
     for j in range(i+1, len(axes)):
@@ -165,8 +170,10 @@ def sidebar(df):
 
 
 def show_dataset_shape(df):
-    st.write(f"The shape of the dataframe = {df.shape}")
+    num_rows, num_cols = df.shape
+    st.write(f"The dataframe contains {num_rows} rows and {num_cols} columns.")
     st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
+    
 def show_sample_dataset(df):
     st.header("Sample of the dataset")
     sample_size = st.slider("Enter the sample size of data ", 1, 100, 10)
@@ -180,7 +187,14 @@ def show_sample_dataset(df):
     st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
 def show_dataset_description(df):
     st.header("Dataset description")
-    st.write(df.describe().T)
+    
+    # Multi-select dropdown to select specific columns
+    selected_columns = st.multiselect("Select columns", options=df.columns.tolist(), default=df.columns.tolist())
+    
+    # Filter the DataFrame to include only selected columns
+    df_selected = df[selected_columns]
+    
+    st.write(df_selected.describe().T)
     st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
 def show_null_values(df):
     st.header("Null values")
