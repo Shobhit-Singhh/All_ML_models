@@ -67,6 +67,9 @@ def plot_data_1(df):
     st.pyplot(fig)
     
 def show_feature_weights_table(model, X_train, y_train):
+    # Convert to float if the data is not already in a numeric format
+    X_train = X_train.astype(float)
+    
     # Calculate predicted probabilities
     y_pred_proba = model.predict_proba(X_train)[:, 1]
     
@@ -76,8 +79,11 @@ def show_feature_weights_table(model, X_train, y_train):
     # Estimate the variance of the residuals
     variance = np.var(residuals)
     
+    # Convert X_train to numpy array
+    X_train_array = X_train.to_numpy()
+    
     # Calculate the diagonal of the covariance matrix of the coefficients
-    diag_cov = np.diag(np.linalg.inv(np.dot(X_train.T, X_train)))
+    diag_cov = np.diag(np.linalg.inv(np.dot(X_train_array.T, X_train_array)))
     
     # Calculate standard errors
     std_err = np.sqrt(variance * diag_cov)
