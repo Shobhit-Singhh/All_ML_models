@@ -419,6 +419,8 @@ def qualitative_analysis(df):
             for category, group_data in df.groupby(target_bool)[num_feature]:
                 summary_data.append([category] + list(five_number_summary(group_data)))
 
+            summary_df = pd.DataFrame(summary_data, columns=[target_bool, "Minimum", "1st Quartile", "Median", "3rd Quartile", "Maximum"])
+            st.write(summary_df)
             
             hypothesis_testing = st.selectbox("Select Hypothesis Testing", ['T-Test', "Kolmogorov-Smirnov Test", "Mann-Whitney U Test"])
             
