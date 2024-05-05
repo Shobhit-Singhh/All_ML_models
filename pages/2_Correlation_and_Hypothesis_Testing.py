@@ -403,8 +403,9 @@ def qualitative_analysis(df):
             fig_density = px.histogram(df, x=num_feature, color=target_bool, marginal='rug', labels={'color': target_bool}, title=f"Distribution of {num_feature} by {target_bool}")
             st.plotly_chart(fig_density)
             
-            hypothesis_testing = st.selectbox("Select Hypothesis Testing", ['T-Test', "Kolmogorov-Smirnov Test", "Mann-Whitney U Test"])
-            st.plotly_chart(hypothesis_testing)
+            st.subheader("Box Plot",help = f"The distribution of a {num_feature} feature by {target_bool} feature.")
+            fig_box = px.box(df, x=target_bool, y=num_feature, labels={'y': num_feature, 'color': target_bool}, title=f"Box Plot of {num_feature} by {target_bool}")
+            st.plotly_chart(fig_box)
             
             st.subheader("5-Number Summary")
 
@@ -425,6 +426,8 @@ def qualitative_analysis(df):
             summary_df = pd.DataFrame(summary_data, columns=[target_bool, "Minimum", "1st Quartile", "Median", "3rd Quartile", "Maximum"])
             st.write(summary_df)
             
+            
+            hypothesis_testing = st.selectbox("Select Hypothesis Testing", ['T-Test', "Kolmogorov-Smirnov Test", "Mann-Whitney U Test"])
             
             if hypothesis_testing == 'T-Test':
                 group1 = df[df[target_bool] == True][num_feature]
