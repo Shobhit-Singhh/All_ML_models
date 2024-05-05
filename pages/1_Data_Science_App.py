@@ -1093,71 +1093,15 @@ def Linear_Regression(X_train, X_test, y_train, y_test):
         st.write(f"R-squared: {r2_score(y_test, y_pred_test)}")
         
 def Logistic_Regression(X_train, X_test, y_train, y_test):
-    st.header("Grid Search for Logistic Regression")
+    st.header("Logistic Regression Summary")
     st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
     
-    # User-selectable parameters
-    penalty = st.multiselect("Select the regularization penalty", ['l1', 'l2', 'elasticnet', 'none'], ["l2"])
-    C_range = st.slider("Select the range of regularization strength (C)", 0.01, 10.0, (4.0,5.0), step=0.01)
-    fit_intercept = st.multiselect("Select the fit_intercept method", [True, False], [True])
-    solver = st.multiselect("Select the optimization solver", ["liblinear", "lbfgs", "saga"], ["saga"])
-    l1_ratio_range = st.slider("Select the range of L1 ratio", 0.0, 1.0, (0.4, 0.5), step=0.1)
-    multi_class = st.selectbox("Select the multi-class strategy", ["auto", "ovr", "multinomial"])
-    intercept_scaling_range = st.slider("Select the intercept scaling factor", 0.1, 10.0,(4.0, 5.0), step=0.01)
+    # Train logistic regression model
+    model = sm.Logit(y_train.to_numpy(), sm.add_constant(X_train.to_numpy())).fit(disp=0)
     
-    cv = st.slider("Select the number of folds for cross-validation", 1, 11, 3)
-    
-    param_grid = {
-        'penalty': penalty,
-        'C': list(np.arange(C_range[0], C_range[1] + 0.1, 0.2)),
-        'fit_intercept': fit_intercept,
-        'solver': solver,
-        'l1_ratio': list(np.arange(l1_ratio_range[0], l1_ratio_range[1]+0.1, 0.1)),
-        'multi_class': [multi_class],
-        'intercept_scaling': list(np.arange(intercept_scaling_range[0], intercept_scaling_range[1] + 0.1, 0.2))
-    }
-    
-    if st.checkbox("Tuning model"):
-        # Convert the data to numpy arrays
-        X_train_np = X_train.to_numpy()
-        X_test_np = X_test.to_numpy()
-        y_train_np = y_train.to_numpy()
-        y_test_np = y_test.to_numpy()
-        
-        # Perform grid search with logistic regression
-        best_score = -1
-        best_model = None
-        for penalty_option in penalty:
-            for C_option in param_grid['C']:
-                for fit_intercept_option in fit_intercept:
-                    for solver_option in solver:
-                        for l1_ratio_option in param_grid['l1_ratio']:
-                            for intercept_scaling_option in param_grid['intercept_scaling']:
-                                model = sm.Logit(y_train_np, sm.add_constant(X_train_np)).fit_regularized(method='l1_cvxopt_cp', alpha=C_option)
-                                y_pred_train = model.predict(sm.add_constant(X_train_np))
-                                y_pred_test = model.predict(sm.add_constant(X_test_np))
-                                score = accuracy_score(y_train_np, (y_pred_train > 0.5).astype(int))
-                                if score > best_score:
-                                    best_score = score
-                                    best_model = model
-        
-        show_feature_weights_table(best_model, X_train)
-        
-        st.header("Model Evaluation:")
-        st.write("Training Set:")
-        st.write(f"Accuracy: {accuracy_score(y_train, (best_model.predict(sm.add_constant(X_train)) > 0.5).astype(int))}")
-        st.write("Confusion Matrix:")
-        st.write(confusion_matrix(y_train, (best_model.predict(sm.add_constant(X_train)) > 0.5).astype(int)))
-        st.write("Classification Report:")
-        st.text(classification_report(y_train, (best_model.predict(sm.add_constant(X_train)) > 0.5).astype(int)))
+    # Display summary
+    st.write(model.summary())
 
-        st.write("Test Set:")
-        st.write(f"Accuracy: {accuracy_score(y_test, (best_model.predict(sm.add_constant(X_test)) > 0.5).astype(int))}")
-        st.write("Confusion Matrix:")
-        st.write(confusion_matrix(y_test, (best_model.predict(sm.add_constant(X_test)) > 0.5).astype(int)))
-        st.write("Classification Report:")
-        st.text(classification_report(y_test, (best_model.predict(sm.add_constant(X_test)) > 0.5).astype(int)))
-        
 def Support_Vector_Machine(X_train, X_test, y_train, y_test):
     st.header("Grid Search for SVM")
     st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
