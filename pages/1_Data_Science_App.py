@@ -1141,7 +1141,12 @@ def Logistic_Regression(X_train, X_test, y_train, y_test):
         y_pred_train = best_model.predict(X_train)
         y_pred_test = best_model.predict(X_test)
         
-        show_feature_weights_table(best_model, X_train)
+        # Print coefficients and intercept
+        st.header("Model Coefficients and Intercept:")
+        st.write("Coefficients:")
+        for feature, coef in zip(["const"] + list(X_train.columns), best_model.coef_[0]):
+            st.write(f"{feature}: {coef}")
+        st.write(f"Intercept (const): {best_model.intercept_[0]}")
         
         st.header("Model Evaluation:")
         st.write("Training Set:")
