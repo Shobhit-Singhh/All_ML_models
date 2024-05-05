@@ -95,10 +95,14 @@ def show_feature_weights_table(model, X_train, y_train):
     from scipy.stats import norm
     p_values = 2 * norm.cdf(-np.abs(z_values))
     
+    # Calculate confidence intervals
+    conf_int_lower = model.coef_[0] - 1.96 * std_err  # 95% confidence interval lower bound
+    conf_int_upper = model.coef_[0] + 1.96 * std_err  # 95% confidence interval upper bound
+    
     # Create a table to display the results
-    table_data = [["Coefficient", "Standard Error", "Z-value", "P-value"]]
-    for coef, se, z, p in zip(model.coef_[0], std_err, z_values, p_values):
-        table_data.append([f"{coef:.2e}", f"{se:.2e}", f"{z:.2e}", f"{p:.2e}"])
+    table_data = [["Coefficient", "Standard Error", "Z-value", "P-value", "95.0% Conf. Int."]]
+    for coef, se, z, p, conf_lower, conf_upper in zip(model.coef_[0], std_err, z_values, p_values, conf_int_lower, conf_int_upper):
+        table_data.append([f"{coef:.2e}", f"{se:.2e}", f"{z:.2e}", f"{p:.2e}", f"({conf_lower:.2e}, {conf_upper:.2e})"])
     
     # Print the table
     st.table(table_data)
