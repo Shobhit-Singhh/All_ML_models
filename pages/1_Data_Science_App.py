@@ -66,16 +66,33 @@ def plot_data_1(df):
 
     st.pyplot(fig)
     
-def show_feature_weights_table(model, X_train):
-    # Add a constant to X_train for intercept
-    X_train_const = sm.add_constant(X_train)
+def show_feature_weights_table(model, X_train, y_train):
+    # Calculate predicted probabilities
+    y_pred_proba = model.predict_proba(X_train)[:, 1]
     
-    # Fit logistic regression model using statsmodels
-    logit_model = sm.Logit(model.predict(X_train), X_train_const)
-    result = logit_model.fit(disp=0)  # disp=0 to suppress convergence messages
+    # Calculate residuals
+    residuals = y_train - y_pred_proba
     
-    # Print summary of the model
-    st.write(result.summary())
+    # Estimate the variance of the residuals
+    variance = np.var(residuals)
+    
+    # Calculate the diagonal of the covariance matrix of the coefficients
+    diag_cov = np.diag(np.linalg.inv(np.dot(X_train.T, X_train)))
+    
+    # Calculate standard errors
+    std_err = np.sqrt(variance * diag_cov)
+    
+    # Calculate z-values
+    z_values = model.coef_[0] / std_err
+    
+    # Calculate p-values
+    from scipy.stats import norm
+    p_values = 2 * norm.cdf(-np.abs(z_values))
+    
+    # Print coefficients, standard errors, z-values, and p-values
+    st.write("Coefficients, Standard Errors, Z-values, P-values:")
+    for feature, coef, se, z, p in zip(["const"] + list(X_train.columns), model.coef_[0], std_err, z_values, p_values):
+        st.write(f"{feature}: {coef}, {se}, {z}, {p}")
 
 def compare_distribution(df, dummy, col=None):
     if col is None:
@@ -87,6 +104,7 @@ def compare_distribution(df, dummy, col=None):
         fig.add_trace(go.Histogram(x=dummy[i], nbinsx=50, name='After', marker=dict(color='red', opacity=0.5)), row=1, col=1)
         fig.update_layout(title_text=f'Distribution Comparison for {i}', showlegend=False)
         st.plotly_chart(fig)
+        
 def compare_covariance(df, dummy, col,lg=True):
     num_cols = df.select_dtypes(include=['number']).columns
     
@@ -1094,15 +1112,58 @@ def Linear_Regression(X_train, X_test, y_train, y_test):
         st.write(f"R-squared: {r2_score(y_test, y_pred_test)}")
         
 def Logistic_Regression(X_train, X_test, y_train, y_test):
-    st.header("Logistic Regression Summary")
+    st.header("Grid Search for Logistic Regression")
     st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
     
-    # Train logistic regression model
-    X_train_const = sm.add_constant(X_train)
-    model = sm.Logit(y_train, X_train_const).fit(disp=0)
+    # User-selectable parameters
+    penalty = st.multiselect("Select the regularization penalty", ['l1', 'l2', 'elasticnet', 'none'], ["l2"])
+    C_range = st.slider("Select the range of regularization strength (C)", 0.01, 10.0, (4.0,5.0), step=0.01)
+    fit_intercept = st.multiselect("Select the fit_intercept method", [True, False], [True])
+    solver = st.multiselect("Select the optimization solver", ["liblinear", "lbfgs", "saga"], ["saga"])
+    l1_ratio_range = st.slider("Select the range of L1 ratio", 0.0, 1.0, (0.4, 0.5), step=0.1)
+    multi_class = st.selectbox("Select the multi-class strategy", ["auto", "ovr", "multinomial"])
+    intercept_scaling_range = st.slider("Select the intercept scaling factor", 0.1, 10.0,(4.0, 5.0), step=0.01)
     
-    # Display summary
-    st.write(model.summary())
+    cv = st.slider("Select the number of folds for cross-validation", 1, 11, 3)
+    
+    param_grid = {
+        'penalty': penalty,
+        'C': list(np.arange(C_range[0], C_range[1] + 0.1, 0.2)),
+        'fit_intercept': fit_intercept,
+        'solver': solver,
+        'l1_ratio': list(np.arange(l1_ratio_range[0], l1_ratio_range[1]+0.1, 0.1)),
+        'multi_class': [multi_class],
+        'intercept_scaling': list(np.arange(intercept_scaling_range[0], intercept_scaling_range[1] + 0.1, 0.2))
+    }
+    
+    if st.checkbox("Tuning model"):
+        model = LogisticRegression()
+        grid_search = GridSearchCV(model, param_grid, scoring='accuracy', cv=cv)
+        grid_search.fit(X_train, y_train)
+        
+        # best parameters
+        best_params = grid_search.best_params_
+        st.write("Best Parameters:", best_params)
+        best_model = grid_search.best_estimator_
+        y_pred_train = best_model.predict(X_train)
+        y_pred_test = best_model.predict(X_test)
+        
+        show_feature_weights_table(best_model, X_train)
+        
+        st.header("Model Evaluation:")
+        st.write("Training Set:")
+        st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train)}")
+        st.write("Confusion Matrix:")
+        st.write(confusion_matrix(y_train, y_pred_train))
+        st.write("Classification Report:")
+        st.text(classification_report(y_train, y_pred_train))
+
+        st.write("Test Set:")
+        st.write(f"Accuracy: {accuracy_score(y_test, y_pred_test)}")
+        st.write("Confusion Matrix:")
+        st.write(confusion_matrix(y_test, y_pred_test))
+        st.write("Classification Report:")
+        st.text(classification_report(y_test, y_pred_test))
 
 def Support_Vector_Machine(X_train, X_test, y_train, y_test):
     st.header("Grid Search for SVM")
