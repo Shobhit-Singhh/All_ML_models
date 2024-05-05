@@ -52,12 +52,12 @@ def plot_data_1(df):
     for i, column in enumerate(columns):
         if column != target_variable:
             # Check if unique values are less than 5, then plot histogram
-            if len(df[column].unique()) < 5:
-                sns.histplot(data=df, x=column, ax=axes[i], kde=True)
-                axes[i].set_title(f'Histogram of {column}')
-            else:
-                sns.scatterplot(data=df, x=column, y=target_variable, ax=axes[i])
-                axes[i].set_title(f'{target_variable} vs {column}')
+            # if len(df[column].unique()) < 5:
+            sns.histplot(data=df, x=column, ax=axes[i], kde=True)
+            axes[i].set_title(f'Histogram of {column}')
+            # else:
+            #     sns.scatterplot(data=df, x=column, y=target_variable, ax=axes[i])
+            #     axes[i].set_title(f'{target_variable} vs {column}')
 
     # Hide empty subplots
     for j in range(i+1, len(axes)):
