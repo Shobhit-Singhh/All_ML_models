@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import streamlit as st
 import seaborn as sns
+import statsmodels.api as sm
 import matplotlib.pyplot as plt
 import warnings as w
 import scipy.cluster.hierarchy as sch
@@ -1097,7 +1098,8 @@ def Logistic_Regression(X_train, X_test, y_train, y_test):
     st.markdown("<hr style='margin: 0.2em 0;'>", unsafe_allow_html=True)
     
     # Train logistic regression model
-    model = sm.Logit(y_train.to_numpy(), sm.add_constant(X_train.to_numpy())).fit(disp=0)
+    X_train_const = sm.add_constant(X_train)
+    model = sm.Logit(y_train, X_train_const).fit(disp=0)
     
     # Display summary
     st.write(model.summary())
