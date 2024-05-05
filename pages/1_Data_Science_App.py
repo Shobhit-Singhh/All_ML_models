@@ -101,7 +101,7 @@ def show_feature_weights_table(model, X_train, y_train):
         table_data.append([f"{coef:.2e}", f"{se:.2e}", f"{z:.2e}", f"{p:.2e}"])
     
     # Print the table
-    st.table(table_data[1:,1:])
+    st.table(table_data[1:])
 
 def compare_distribution(df, dummy, col=None):
     if col is None:
