@@ -483,7 +483,7 @@ def plot_data(df):
     with tab2:
         extender_3 = st.expander("Plot your data")
         with extender_3:
-            pair = st.checkbox("pair plot",key=1)
+            pair = st.checkbox("pair plot",key=17831876)
             plot = st.checkbox("plot your data")
             
     if pair:
