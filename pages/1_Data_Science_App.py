@@ -1007,8 +1007,8 @@ def feature_engineering(df):
         outliers_detection(df)
     if expander_4.checkbox("Feature Encoding"):
         feature_encoding(df)
-    if expander_4.checkbox("Feature Scaling and Transformation"): 
-        feature_scaling_transformation(df)
+    # if expander_4.checkbox("Feature Scaling and Transformation"): 
+    #     feature_scaling_transformation(df)
 
 
 def pca(df):
