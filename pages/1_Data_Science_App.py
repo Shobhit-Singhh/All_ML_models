@@ -1180,7 +1180,7 @@ def Logistic_Regression(X_train, X_test, y_train, y_test):
         
         show_feature_weights_table(best_model, X_train, y_train)
         
-       st.header("Model Evaluation:")
+        st.header("Model Evaluation:")
 
         # Training Set Evaluation
         st.write("Training Set:")
