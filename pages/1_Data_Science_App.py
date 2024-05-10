@@ -1195,7 +1195,8 @@ def Logistic_Regression(X_train, X_test, y_train, y_test):
         st.write(conf_matrix_df_train)
         
         st.write("Classification Report:")
-        st.text(classification_report(y_train, y_pred_train))
+        classification_report_train = classification_report(y_train, y_pred_train)
+        st.table(classification_report_train)
         
         # Test Set Evaluation
         st.write("Test Set:")
@@ -1209,7 +1210,9 @@ def Logistic_Regression(X_train, X_test, y_train, y_test):
         st.write(conf_matrix_df_test)
         
         st.write("Classification Report:")
-        st.text(classification_report(y_test, y_pred_test))
+        classification_report_test = classification_report(y_test, y_pred_test)
+        st.table(classification_report_test)
+
 
 
 
