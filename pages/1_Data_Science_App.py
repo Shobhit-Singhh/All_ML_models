@@ -103,24 +103,22 @@ def show_feature_weights_table(model, X_train, y_train):
     table_data = [["Variable", "Coefficient", "Standard Error", "Z-value", "P-value", "95.0% Conf. Int."]]
     for feature, coef, se, z, p, conf_lower, conf_upper in zip(["const"] + list(X_train.columns), model.coef_[0], std_err, z_values, p_values, conf_int_lower, conf_int_upper):
         coef_rounded = round(coef, 3)
-        coef_formatted = f"{coef_rounded:.3f}" if coef_rounded != 0 else f"{coef_rounded:.2e}"
-        
         se_rounded = round(se, 3)
-        se_formatted = f"{se_rounded:.3f}" if se_rounded != 0 else f"{se_rounded:.2e}"
-        
         z_rounded = round(z, 3)
-        z_formatted = f"{z_rounded:.3f}" if z_rounded != 0 else f"{z_rounded:.2e}"
-        
         p_rounded = round(p, 3)
-        p_formatted = f"{p_rounded:.3f}" if p_rounded != 0 else f"{p_rounded:.2e}"
-        
         conf_lower_rounded = round(conf_lower, 3)
-        conf_lower_formatted = f"{conf_lower_rounded:.3f}" if conf_lower_rounded != 0 else f"{conf_lower_rounded:.2e}"
-        
         conf_upper_rounded = round(conf_upper, 3)
-        conf_upper_formatted = f"{conf_upper_rounded:.3f}" if conf_upper_rounded != 0 else f"{conf_upper_rounded:.2e}"
+        
+        # Check if rounded value is zero, if yes, use exponential notation
+        coef_formatted = f"{coef_rounded:.3f}" if coef_rounded != 0 else f"{coef:.2e}"
+        se_formatted = f"{se_rounded:.3f}" if se_rounded != 0 else f"{se:.2e}"
+        z_formatted = f"{z_rounded:.3f}" if z_rounded != 0 else f"{z:.2e}"
+        p_formatted = f"{p_rounded:.3f}" if p_rounded != 0 else f"{p:.2e}"
+        conf_lower_formatted = f"{conf_lower_rounded:.3f}" if conf_lower_rounded != 0 else f"{conf_lower:.2e}"
+        conf_upper_formatted = f"{conf_upper_rounded:.3f}" if conf_upper_rounded != 0 else f"{conf_upper:.2e}"
         
         table_data.append([feature, coef_formatted, se_formatted, z_formatted, p_formatted, f"({conf_lower_formatted}, {conf_upper_formatted})"])
+
 
     
     # Print the table
