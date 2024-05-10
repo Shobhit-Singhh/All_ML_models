@@ -102,13 +102,13 @@ def show_feature_weights_table(model, X_train, y_train):
     # Create a table to display the results
     table_data = [["Variable", "Coefficient", "Standard Error", "Z-value", "P-value", "95.0% Conf. Int."]]
     for feature, coef, se, z, p, conf_lower, conf_upper in zip(["const"] + list(X_train.columns), model.coef_[0], std_err, z_values, p_values, conf_int_lower, conf_int_upper):
-    coef_rounded = round(coef, 3)
-    se_rounded = round(se, 3)
-    z_rounded = round(z, 3)
-    p_rounded = round(p, 3)
-    conf_lower_rounded = round(conf_lower, 3)
-    conf_upper_rounded = round(conf_upper, 3)
-    table_data.append([feature, f"{coef_rounded:.3f}", f"{se_rounded:.3f}", f"{z_rounded:.3f}", f"{p_rounded:.3f}", f"({conf_lower_rounded:.3f}, {conf_upper_rounded:.3f})"])
+        coef_rounded = round(coef, 3)
+        se_rounded = round(se, 3)
+        z_rounded = round(z, 3)
+        p_rounded = round(p, 3)
+        conf_lower_rounded = round(conf_lower, 3)
+        conf_upper_rounded = round(conf_upper, 3)
+        table_data.append([feature, f"{coef_rounded:.3f}", f"{se_rounded:.3f}", f"{z_rounded:.3f}", f"{p_rounded:.3f}", f"({conf_lower_rounded:.3f}, {conf_upper_rounded:.3f})"])
 
     
     # Print the table
