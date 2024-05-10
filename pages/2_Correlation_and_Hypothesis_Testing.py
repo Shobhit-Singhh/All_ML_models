@@ -370,11 +370,6 @@ def qualitative_analysis(df):
             
             st.subheader("")
             
-            
-            
-            
-            
-            
             st.subheader("Cotigency Table")
             confusion_matrix = pd.crosstab(df[target_bool], df[bool_feature])
             
@@ -385,6 +380,7 @@ def qualitative_analysis(df):
             st.table(styled_matrix.set_caption(f"Confusion Matrix ({target_bool} vs {bool_feature})").set_table_attributes("class='styled-table'"))
             
             hypothesis_testing = st.selectbox("Select Hypothesis Testing", ['None', "Chi-Square Test", "Fisher's Exact Test", "Odd Ratio"])
+            hypothesis_testing = st.selectbox("Select Hypothesis Testing", ["Chi-Square Test"])
             
             if hypothesis_testing == 'Chi-Square Test':
                 chi_square_test(confusion_matrix)
@@ -427,7 +423,8 @@ def qualitative_analysis(df):
             st.write(summary_df)
             
             
-            hypothesis_testing = st.selectbox("Select Hypothesis Testing", ['T-Test', "Kolmogorov-Smirnov Test", "Mann-Whitney U Test"])
+            # hypothesis_testing = st.selectbox("Select Hypothesis Testing", ['T-Test', "Kolmogorov-Smirnov Test", "Mann-Whitney U Test"])
+            hypothesis_testing = st.selectbox("Select Hypothesis Testing", ['T-Test'])
             
             if hypothesis_testing == 'T-Test':
                 group1 = df[df[target_bool] == True][num_feature]
@@ -494,7 +491,8 @@ def quantitative_analysis(df):
             fig_box_quant_qual = px.box(df, x=bool_feature, y=target_quant, labels={'y': target_quant, 'color': bool_feature}, title=f"Box Plot of {target_quant} by {bool_feature}")
             st.plotly_chart(fig_box_quant_qual)
             
-            hypothesis_testing_quant_qual = st.selectbox("Select Hypothesis Testing", ['T-Test', "Kolmogorov-Smirnov Test", "Mann-Whitney U Test", "Wilcoxon Signed-Rank Test"])
+            # hypothesis_testing_quant_qual = st.selectbox("Select Hypothesis Testing", ['T-Test', "Kolmogorov-Smirnov Test", "Mann-Whitney U Test", "Wilcoxon Signed-Rank Test"])
+            hypothesis_testing_quant_qual = st.selectbox("Select Hypothesis Testing", ['T-Test'])
             
             if hypothesis_testing_quant_qual == 'T-Test':
                 group1_quant_qual = df[df[bool_feature] == True][target_quant]
