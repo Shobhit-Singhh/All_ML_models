@@ -379,7 +379,7 @@ def qualitative_analysis(df):
             styled_matrix = confusion_matrix.style.highlight_max(axis=0, color='lightgreen').highlight_max(axis=1, color='lightblue').set_table_styles([{'selector': 'thead th','props': [('text-align', 'center')]}])
             st.table(styled_matrix.set_caption(f"Confusion Matrix ({target_bool} vs {bool_feature})").set_table_attributes("class='styled-table'"))
             
-            hypothesis_testing = st.selectbox("Select Hypothesis Testing", ['None', "Chi-Square Test", "Fisher's Exact Test", "Odd Ratio"])
+            # hypothesis_testing = st.selectbox("Select Hypothesis Testing", ['None', "Chi-Square Test", "Fisher's Exact Test", "Odd Ratio"])
             hypothesis_testing = st.selectbox("Select Hypothesis Testing", ["Chi-Square Test"])
             
             if hypothesis_testing == 'Chi-Square Test':
