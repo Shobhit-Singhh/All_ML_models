@@ -1181,35 +1181,36 @@ def Logistic_Regression(X_train, X_test, y_train, y_test):
         show_feature_weights_table(best_model, X_train, y_train)
         
         st.header("Model Evaluation:")
+
+        # Training Set Evaluation
         st.write("Training Set:")
-        accuracy = accuracy_score(y_train, y_pred_train)
-        rounded_accuracy = round(accuracy, 2)
-        st.write(f"Accuracy: {rounded_accuracy}")
-        st.write("Confusion Matrix:")
-        conf_matrix = confusion_matrix(y_train, y_pred_train)
-        labels = ['Actual Absent', 'Actual Present']
-        conf_matrix_df = pd.DataFrame(conf_matrix, columns=['Predicted Absent', 'Predicted Present'], index=labels)
+        accuracy_train = accuracy_score(y_train, y_pred_train)
+        rounded_accuracy_train = round(accuracy_train, 2)
+        st.write(f"Accuracy: {rounded_accuracy_train}")
         
         st.write("Confusion Matrix:")
-        st.write(conf_matrix_df)
-
+        conf_matrix_train = confusion_matrix(y_train, y_pred_train)
+        labels = ['Actual Absent', 'Actual Present']
+        conf_matrix_df_train = pd.DataFrame(conf_matrix_train, columns=['Predicted Absent', 'Predicted Present'], index=labels)
+        st.write(conf_matrix_df_train)
+        
         st.write("Classification Report:")
         st.text(classification_report(y_train, y_pred_train))
-
+        
+        # Test Set Evaluation
         st.write("Test Set:")
-        accuracy = accuracy_score(y_test, y_pred_test)
-        rounded_accuracy = round(accuracy, 2)
-        st.write(f"Accuracy: {rounded_accuracy}")
-        st.write("Confusion Matrix:")
-        conf_matrix = confusion_matrix(y_test, y_pred_train)
-        labels = ['Actual Absent', 'Actual Present']
-        conf_matrix_df = pd.DataFrame(conf_matrix, columns=['Predicted Absent', 'Predicted Present'], index=labels)
+        accuracy_test = accuracy_score(y_test, y_pred_test)
+        rounded_accuracy_test = round(accuracy_test, 2)
+        st.write(f"Accuracy: {rounded_accuracy_test}")
         
         st.write("Confusion Matrix:")
-        st.write(conf_matrix_df)
-
+        conf_matrix_test = confusion_matrix(y_test, y_pred_test)
+        conf_matrix_df_test = pd.DataFrame(conf_matrix_test, columns=['Predicted Absent', 'Predicted Present'], index=labels)
+        st.write(conf_matrix_df_test)
+        
         st.write("Classification Report:")
         st.text(classification_report(y_test, y_pred_test))
+
 
 def Support_Vector_Machine(X_train, X_test, y_train, y_test):
     st.header("Grid Search for SVM")
