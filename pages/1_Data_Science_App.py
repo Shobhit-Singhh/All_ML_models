@@ -1182,14 +1182,14 @@ def Logistic_Regression(X_train, X_test, y_train, y_test):
         
         st.header("Model Evaluation:")
         st.write("Training Set:")
-        st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train)}")
+        st.write(f"Accuracy: {accuracy_score(y_train, y_pred_train).round(2)}")
         st.write("Confusion Matrix:")
         st.write(confusion_matrix(y_train, y_pred_train))
         st.write("Classification Report:")
         st.text(classification_report(y_train, y_pred_train))
 
         st.write("Test Set:")
-        st.write(f"Accuracy: {accuracy_score(y_test, y_pred_test)}")
+        st.write(f"Accuracy: {accuracy_score(y_test, y_pred_test).round(2)}")
         st.write("Confusion Matrix:")
         st.write(confusion_matrix(y_test, y_pred_test))
         st.write("Classification Report:")
@@ -1610,8 +1610,8 @@ def app():
     # Section 4: Feature Engineering
     feature_engineering(df)
     
-    # Section 5: Feature Selection
-    feature_selection(df)
+    # # Section 5: Feature Selection
+    # feature_selection(df)
     
     # Section 6: Model Building
     model_building(df)
