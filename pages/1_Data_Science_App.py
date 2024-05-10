@@ -1186,7 +1186,13 @@ def Logistic_Regression(X_train, X_test, y_train, y_test):
         rounded_accuracy = round(accuracy, 2)
         st.write(f"Accuracy: {rounded_accuracy}")
         st.write("Confusion Matrix:")
-        st.write(confusion_matrix(y_train, y_pred_train))
+        conf_matrix = confusion_matrix(y_train, y_pred_train)
+        labels = ['Actual Absent', 'Actual Present']
+        conf_matrix_df = pd.DataFrame(conf_matrix, columns=['Predicted Absent', 'Predicted Present'], index=labels)
+        
+        st.write("Confusion Matrix:")
+        st.write(conf_matrix_df)
+
         st.write("Classification Report:")
         st.text(classification_report(y_train, y_pred_train))
 
@@ -1195,7 +1201,13 @@ def Logistic_Regression(X_train, X_test, y_train, y_test):
         rounded_accuracy = round(accuracy, 2)
         st.write(f"Accuracy: {rounded_accuracy}")
         st.write("Confusion Matrix:")
-        st.write(confusion_matrix(y_test, y_pred_test))
+        conf_matrix = confusion_matrix(y_test, y_pred_train)
+        labels = ['Actual Absent', 'Actual Present']
+        conf_matrix_df = pd.DataFrame(conf_matrix, columns=['Predicted Absent', 'Predicted Present'], index=labels)
+        
+        st.write("Confusion Matrix:")
+        st.write(conf_matrix_df)
+
         st.write("Classification Report:")
         st.text(classification_report(y_test, y_pred_test))
 
